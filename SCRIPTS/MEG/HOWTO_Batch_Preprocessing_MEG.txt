@@ -1,0 +1,103 @@
+How to Mark Events
+2013-07-23 Foldes
+
+
+Don't clean up too much, need to later add way to remove events that don't happen at the right time points (maybe add to GUI_Auto_Remove_Events_wBadSegments)
+
+- Don't forget, if they miss the first move in a block, remove the previous rest, they were sleeping
+
+
+blink
+	left-mouse click best blink signal (EOG spikes)
+	"s"
+	change parameters to best mark blinks, should have >20 events, marker should be in the center of the blink, long duration is not blinks
+		- thres should be first parameters to try
+		- Too big Thres can also be used if big things w/ the correct structure are being left out.
+		- Max Artifact RateS and Peak WindowS shouldn't be used
+	If new parameters are entered, selected "Okay" and reinspect results
+	If parameters are good, then select "Cancel"
+	Look at events. 
+		- add more events by putting cursor over time and pushing '1'
+		- remove an event with cursor near the time point, press 'delete'
+		- Use normal Inspection navigation
+		- should have >20 events
+	To accept, press 's'
+	
+cardiac
+	Same, but this should be a bunch of quick spikes
+	Anything long or big is not ECG, probably need to remove manually w/ inspector at the end.
+
+
+MISC (Photodiode)
+	For Imagine/Attempt, this isn't active, just click 'esc' and 'No Save'
+
+Artifact Free Move (For Imagine/Observe ONLY)
+	Select one or more signals that could have artifacts info on them (usually one on top and one on bottom)
+	's'
+	Adjust parameters (esp. thres), press "okay"
+	Once satisfied, press "cancel"
+	You do the same thing for each signal you selected
+	Manually remove markers with 'del' that still look noisy
+	Hopefully you have over 50 (80/90 is max)
+	's' to save
+
+EMG and ACC (For Imitate/Attempt ONLY)
+
+Artifact Free Rest
+	Select one or more signals that could have artifacts info on them (usually one on top and one on bottom)
+	's'
+	Adjust parameters (esp. thres), press "okay"
+	Once satisfied, press "cancel"
+	You do the same thing for each signal you selected
+	Manually remove markers with 'del' that still look noisy
+	Hopefully you have over 10
+	's' to save
+
+
+================
+===SSP==========
+================
+
+Select SSP-components for blinks
+	Plots show 500ms around blink centers for each componet
+	First plot is interquantile range
+	2nd plot is interactive where you click the SSP-components to build a filter (this plot shows multiple blinks and 500ms around)
+	Bottom components are the strongest
+	Usually pick bottom compenent and any component that is already red (already selected)
+	Any compent w/ a pattern, select
+	's' to save
+	Next plot shows how the removal of components affects the signal (red - clean) patterns should be removed, push 's' to save ('q' to redo)
+
+Select SSP-components for cardiac
+	Plots show 500ms around blink centers for each componet
+	First plot is interquantile range
+	2nd plot is interactive where you click the SSP-components to build a filter (this plot shows multiple ECG)
+	Bottom components are the strongest
+	Usually pick bottom compenent and any component that is already red (already selected)
+	Any compent w/ a pattern, select (unlikely much for cardiac)
+	's' to save
+	Next plot shows how the removal of components affects the signal (red - clean) patterns should be removed, push 's' to save ('q' to redo)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+
+

@@ -1,0 +1,459 @@
+% Quick_MEG_Check
+% Used to load in a fif file, do PSD on movement cues, and show PSD and topography of selected frequency ranges.
+%
+% Assumes Open_loop_MEG paradigm which must be defined in Prep_ExpDefs.m
+% Does MEM, 30 order, 1Hz resolution, 0-120Hz. Can be changed in FeatureParms. structure
+% Power analysis window parameters can be altered in AnalaysisParms. structure
+%
+% 2013-06-08 Foldes [Branched]
+% UPDATES:
+
+clear
+% close all
+overwrite_flag=1;
+
+% Choose criteria for data set to analyize
+clear criteria_struct
+criteria_struct.subject = 'NS06';
+criteria_struct.run_type = 'Open_Loop_MEG';
+criteria_struct.run_task_side = 'Right';
+criteria_struct.run_action = 'Grasp';
+% criteria_struct.run_intention = 'Imagine';
+criteria_struct.run_intention = 'Attempt';
+% criteria_struct.session = '01'
+% Metadata_lookup_unique_entries(Metadata,'run_action') % check the entries
+
+Extract.file_type='sss_trans'; % What type of data?
+
+%% Load Database
+% PATHS
+local_base_path = '/home/foldes/Data/MEG/';
+server_base_path = '/home/foldes/Desktop/Katz/experiments/meg_neurofeedback/';
+metadatabase_base_path = '/home/foldes/Desktop/Katz/experiments/meg_neurofeedback/';
+metadatabase_location=[metadatabase_base_path filesep 'Neurofeedback_metadatabase.txt'];
+%metadatabase_location='/home/foldes/Dropbox/Code/MEG_SF_Tools/Databases/Neurofeedback_metadatabase_backup.txt';
+
+% Load Metadata from text file32
+
+Metadata = Metadata_Class();
+Metadata = Load_StandardStruct_from_TXT(Metadata,metadatabase_location);
+
+
+Extract.data_path_default = local_base_path;
+
+% % CHECK FIRST
+% property_name = 'Preproc.Pointer_processed_data_for_events';
+% Metadata_Report_Property_Check(Metadata,[],property_name);
+
+% Chooses the approprate entry (makes one if you don't have one)
+[entry_idx_list] = Metadata_Find_Entries_By_Criteria(Metadata,criteria_struct);
+
+%%
+ientry = 1;
+% for ientry = 1:length(entry_idx_list)
+    
+    metadata_entry = Metadata(entry_idx_list(ientry));
+    disp(' ')
+    disp(['==================File #' num2str(ientry) '/' num2str(length(entry_idx_list)) ' | ' metadata_entry.file_base_name '================='])
+%     try
+        % Copy local (can be used to copy all that match criteria)
+        Metadata_Copy_Data_from_Server(metadata_entry,[],local_base_path,server_base_path,[MEG_file_type2file_extension(Extract.file_type) '.fif']);
+
+        
+        %% Preparing Data Set Info and Analysis-related Parameters
+        
+        %---Extraction Info-------------
+        Extract = Prep_Extract_w_Metadata(Extract,metadata_entry);
+        Extract.channel_list=sort([1:3:306 2:3:306]); % only gradiometers
+        %-------------------------------
+        
+        %---Feature Parameters (FeatureParms.)---
+        % Can be empty for loading feature data from CRX files
+        FeatureParms.feature_method = 'MEM';
+        FeatureParms.order = 30;
+        FeatureParms.feature_resolution = 1;
+        FeatureParms.ideal_freqs = [0:200]; % Pick freq or bins
+        FeatureParms.sample_rate = Extract.data_rate;
+        %-------------------------------
+        
+        %---Analysis Parameters (AnalysisParms.)---
+        %     AnalysisParms.rx_timeS_move=0.50; AnalysisParms.window_lengthS_move = 0.5;
+        %     AnalysisParms.rx_timeS_rest=2; AnalysisParms.window_lengthS_rest = 5;
+        %     AnalysisParms.rx_timeS_move=0.5; % OLD
+        AnalysisParms.window_lengthS_move = .3;
+        %     AnalysisParms.rx_timeS_rest=1;
+        AnalysisParms.window_lengthS_rest = 3;
+        %-------------------------------
+        
+        %% ----------------------------------------------------------------
+        %  -----------------CODE STARTS------------------------------------
+        %  ----------------------------------------------------------------
+        %% Load Data (based on Extract and ExpDefs)
+        
+        % Load MEG data
+        [MEG_data,TimeVecs.timeS] =  Load_from_FIF(Extract,'MEG');
+        TimeVecs.data_rate = Extract.data_rate;
+        [TimeVecs.target_code_org] =  Load_from_FIF(Extract,'STI');
+        
+        %     if strcmp(questdlg_wPosition([],'Inspect raw time-series data?','Inspect Raw','Yes','No','No'),'Yes')
+        %         % Low pass filter (30Hz) ***A BIT SLOW***
+        %         data2plot=Calc_Filter_Freq_SimpleButter(MEG_data,30,TimeVecs.data_rate,'low');
+        %         Plot_Inspect_TimeSeries_Signals(data2plot,TimeVecs.timeS,[],[],[],Extract.file_name{1});
+        %         pause(0.1)
+        %         % Could actually mark bad channels
+        %     end
+        
+%         % Load preprocessed misc data if it exists
+%         if ~isempty(metadata_entry.Preproc.Pointer_processed_data_for_events)
+%             if exist([Extract.file_path filesep metadata_entry.Preproc.Pointer_processed_data_for_events])==2
+%                 disp('Loading preprocessed MISC data')
+%                 load([Extract.file_path filesep metadata_entry.Preproc.Pointer_processed_data_for_events]);
+%             end
+%         end
+        
+        %% SSP
+        
+        % try to load if possible, or calculate
+        %if questdlg_YesNo_logic('Use SSP? (calculates if does not exist)','SSP?')
+        pointer_name = ['SSP_' Extract.file_type];
+        if exist([Extract.file_path filesep Extract.file_base_name '_' pointer_name '.mat'])==2
+            %             if questdlg_YesNo_logic('A SSP already exists, use it?','SSP?')
+            load([Extract.file_path filesep Extract.file_base_name '_' pointer_name]);
+            %             end
+            
+        end
+        %
+        % if ~exist('ssp_components') || isempty(ssp_components)
+        %
+        %     STI_data=TimeVecs.target_code_org;%Load_from_FIF(Extract,'STI'); % load trigger channel
+        %     STI_data(STI_data>100)=-1; % remove 255s
+        %
+        %     % Load Events if possible
+        %     if exist([Extract.file_path filesep Extract.file_base_name '_Events.mat'])==2 % try to load
+        %         load([Extract.file_path filesep Extract.file_base_name '_Events.mat']);
+        %     else
+        %         % ===Process EOG and ECG===
+        %         if ~exist('processed_data') || isempty(processed_data)
+        %             blink_data=Load_from_FIF(Extract,'EOG'); % load EOG
+        %             processed_data.blink_data = Calc_Rectify_Smooth(blink_data,Extract.data_rate);
+        %             cardiac_data=Load_from_FIF(Extract,'EMG'); % load EMG for ECG
+        %             processed_data.cardiac_data = Calc_Rectify_Smooth(cardiac_data,Extract.data_rate);
+        %         end
+        %
+        %         % ===blink===
+        %         Events.blink= GUI_Auto_Event_Markers(processed_data.blink_data,TimeVecs.timeS,STI_data,'blink');
+        %
+        %         % ===cardiac===
+        %         Events.cardiac= GUI_Auto_Event_Markers(processed_data.cardiac_data,TimeVecs.timeS,STI_data,'cardiac');
+        %     end
+        %
+        %     % Computer SSP
+        %     ssp_components = [];
+        %     try; ssp_components = [ssp_components Calc_SSP(MEG_data,Events.blink,Extract.data_rate,'blink')];end
+        %     try; ssp_components = [ssp_components Calc_SSP(MEG_data,Events.cardiac,Extract.data_rate,'cardiac')];end
+        %
+        %     % Save?
+        %     if questdlg_YesNo_logic('Save SSP? (NOT SAVED TO DATABASE)','SSP?')
+        %         save([Extract.file_path filesep Extract.file_base_name '_' pointer_name],'ssp_components');
+        %     end
+        % end
+        
+        if exist('ssp_components')
+            % Apply
+            ssp_projector = Calc_SSP_Filters(ssp_components);
+            MEG_data_clean = (ssp_projector*MEG_data')';
+%             Flags.SSP =1;
+%         else 
+            
+        end
+        %     else
+        % MEG_data_clean = MEG_data;
+        %end % SSP
+        
+        
+        %% Define event type
+        
+        % if exist([Extract.file_path filesep Extract.file_base_name '_Events.mat'])==2 % try to load
+        load([Extract.file_path filesep Extract.file_base_name '_Events.mat']);
+        % else
+        %     if ~exist('processed_data') || isempty(processed_data) || ~isfield(processed_data,'EMG_data')
+        %         disp('Processing EMG and ACC data, will take 1 minute')
+        %         % EMG
+        %         [EMG_data,processed_data.timeS] = Load_from_FIF(Extract,'EMG');
+        %         [processed_data.EMG_data] = Calc_Rectify_Smooth(EMG_data,Extract.data_rate,1);
+        %
+        %         % MISC/Accelermeter
+        %         [processed_data.MISC_data] = Load_from_FIF(Extract,'MISC');
+        %         [processed_data.ACC_data] = Calc_Rectify_Smooth(processed_data.MISC_data,Extract.data_rate,1);
+        %     end
+        %
+        %     STI_data=TimeVecs.target_code_org;%Load_from_FIF(Extract,'STI'); % load trigger channel
+        %     STI_data(STI_data>100)=-1; % remove 255s
+        %
+        %     ExpDefs.paradigm_type =metadata_entry.run_type;
+        %     ExpDefs=Prep_ExpDefs(ExpDefs);
+        %     TimeVecs=Prep_TargetCode(TimeVecs,ExpDefs);
+        %
+        %     % ===ParallelPort===
+        %     % go through each rest period and try to mark good times
+        %     trial_start_idx = TrialTransitions(TimeVecs.target_code); % indicies in the 'raw' data (i.e. time series) where target_code changes happen (i.e. trial starting points)
+        %     Events.ParallelPort_Move = trial_start_idx(TimeVecs.target_code(trial_start_idx)==ExpDefs.target_code.move);
+        %     Events.ParallelPort_Rest = trial_start_idx(TimeVecs.target_code(trial_start_idx)==ExpDefs.target_code.rest);
+        %     Events.ParallelPort_BlockStart = trial_start_idx(TimeVecs.target_code(trial_start_idx)==ExpDefs.target_code.block_start);
+        %
+        %     % ===PHOTODIODE===
+        %     event_type = 'MISC';event_BST_name = 'photodiode';
+        %     event_data_str = [event_type '_data'];
+        %     Events.(event_BST_name)= GUI_Auto_Event_Markers(processed_data.(event_data_str),TimeVecs.timeS,STI_data,event_type);
+        %
+        %     % ===ACC===
+        %     event_name = 'ACC';
+        %     event_data_str = [event_name '_data'];
+        %     [Events.(event_name),window_lengthS_move.ACC]= GUI_Auto_Event_Markers(processed_data.(event_data_str),TimeVecs.timeS,STI_data,event_name);
+        %
+        %     % ===EMG===
+        %     event_name = 'EMG';
+        %     event_data_str = [event_name '_data'];
+        %     [Events.(event_name),window_lengthS_move.EMG]= GUI_Auto_Event_Markers(processed_data.(event_data_str),TimeVecs.timeS,STI_data,event_name);
+        %
+        %     % ===Clean Rest===
+        %     event_BST_name = 'ArtifactFreeRest';
+        %     [Events.(event_BST_name)] = GUI_Auto_ArtifactFree_Markers([processed_data.EMG_data processed_data.ACC_data],TimeVecs,STI_data,ExpDefs);
+        %
+        %     % SAVE OUT NOW (should inspect first)
+        %     %[Marks,save_flag]=Plot_Inspect_TimeSeries_Signals(
+        %     save([Extract.file_path filesep Extract.file_base_name '_Events'],'Events');
+        % end
+        
+        % %% FEATURE EXTRACTION (based on AnalysisParms and FeatureParms)
+        %
+        %     event_name_move = 'EMG';
+        % %     event_name_move = 'ACC';
+        % %     event_name_move = 'ParallelPort_Move';
+        % %     event_name_rest = 'ParallelPort_Rest';
+        %     event_name_rest = 'ArtifactFreeRest';
+        %
+        %     disp(length(Events.(event_name_move)))
+        %
+        %     % Calc Move Power
+        %     FeatureParms.window_lengthS=AnalysisParms.window_lengthS_move;
+        %     FeatureParms.window_length = floor(FeatureParms.window_lengthS*Extract.data_rate);
+        %
+        %     % Power in window BEFORE movement onset (event is in center of analysis window)
+        %     [feature_data_move,FeatureParms]=Calc_PSD_TimeLocked(MEG_data_clean,Events.(event_name_move)-floor(FeatureParms.window_length),FeatureParms);
+        %
+        %     % Calc Rest power
+        % %     FeatureParms.window_lengthS = AnalysisParms.window_lengthS_rest;
+        % %     FeatureParms.window_lengthS=4;
+        % %     FeatureParms.window_length = floor(FeatureParms.window_lengthS*Extract.data_rate);
+        % %
+        % %     % Power in window surounding Rest Event
+        % % %     [feature_data_rest,FeatureParms]=Calc_PSD_TimeLocked(MEG_data_clean,Events.(event_name_rest)-floor(FeatureParms.window_length/2),FeatureParms);
+        %
+        %
+        %     FeatureParms.window_lengthS = 4;
+        %     FeatureParms.window_length = floor(FeatureParms.window_lengthS*Extract.data_rate);
+        %
+        %     % Power in window surounding Rest Event
+        %     [feature_data_rest,FeatureParms]=Calc_PSD_TimeLocked(MEG_data_clean,Events.(event_name_rest)+1000,FeatureParms);
+        %
+        %
+        % %     FeatureParms.window_lengthS=20;
+        % %     FeatureParms.window_length = floor(FeatureParms.window_lengthS*Extract.data_rate);
+        % %
+        % %     % Power in window surounding Rest Event
+        % %     [feature_data_rest,FeatureParms]=Calc_PSD_TimeLocked(MEG_data_clean,trial_start_idx(TimeVecs.target_code(trial_start_idx)==ExpDefs.target_code.baseline),FeatureParms);
+        %
+        %
+        %     % Baseline mean and sd for z-score
+        %     rest4mod_depth_MEAN = squeeze(mean(feature_data_rest,1));
+        %     rest4mod_depth_SD = squeeze(std(feature_data_rest,[],1));
+        %
+        %     % MOD DEPTH BY SENSOR GROUP (pseudo z-score)
+        %
+        %     % Combine gradiometers (i.e. go to sensors)
+        %     load DEF_NeuromagSensorInfo;
+        %     for ichan = 1:length(Extract.channel_list)
+        %         sensor_idx2group(ichan) = NeuromagSensorInfo(Extract.channel_list(ichan)).sensor_group_num;
+        %     end
+        %     sensor_group_list=unique(sensor_idx2group);
+        %
+        %     clear  feature_sensor_data_move rest4mod_depth_sensor_MEAN rest4mod_depth_sensor_SD
+        %     for igroup = 1:length(sensor_group_list)
+        %         feature_sensor_data_move(:,igroup,:) = sum(feature_data_move(:,(sensor_idx2group==sensor_group_list(igroup)),:),2);
+        %         rest4mod_depth_sensor_MEAN(igroup,:) = sum(rest4mod_depth_MEAN(sensor_idx2group==sensor_group_list(igroup),:),1);
+        %         rest4mod_depth_sensor_SD(igroup,:) = sum(rest4mod_depth_SD(sensor_idx2group==sensor_group_list(igroup),:),1);
+        %     end
+        %
+        %     % Calculate Modulation Depth by each sensor-set
+        %     clear pzscore_moddepth_by_sensor_set
+        %     for itrial=1:size(feature_sensor_data_move,1)
+        %         for isensor = 1:size(feature_sensor_data_move,2)
+        %             for ifreq = 1:size(feature_sensor_data_move,3)
+        %                 pzscore_moddepth_by_sensor_set(itrial,isensor,ifreq)=(feature_sensor_data_move(itrial,isensor,ifreq)-rest4mod_depth_sensor_MEAN(isensor,ifreq))/rest4mod_depth_sensor_SD(isensor,ifreq);
+        %             end
+        %         end
+        %     end
+        %
+        % %% PLOT
+        %
+        % mod_sensorimotor_left = pzscore_moddepth_by_sensor_set(:,sensors2sensorgroupidx(sensor_group_list,DEF_MEG_sensors_sensorimotor_left_hemi),:);
+        %
+        % freq_range_4gamma = [65:85]; % "WRONG" FOR NOW; assumes freq res
+        % gamma_chan = max_idx(mean(mean(mod_sensorimotor_left(:,:,freq_range_4gamma),1),3));
+        % freq_range_4beta = [20:30]; % "WRONG" FOR NOW; assumes freq res
+        % beta_chan = min_idx(mean(mean(mod_sensorimotor_left(:,:,freq_range_4beta),1),3));
+        %
+        % fig_best = figure;hold all
+        % Plot_Variance_as_Patch(squeeze(mean(mod_sensorimotor_left,1))',FeatureParms.actual_freqs,'maxmin','g',fig_best,0.25);
+        % plot(mean(squeeze(mod_sensorimotor_left(:,gamma_chan,:)))')
+        % plot(mean(squeeze(mod_sensorimotor_left(:,beta_chan,:)))')
+        % plot( [min(FeatureParms.actual_freqs),max(FeatureParms.actual_freqs)],[1 1],'--k')
+        % plot( [min(FeatureParms.actual_freqs),max(FeatureParms.actual_freqs)],[-1 -1],'--k')
+        % set(gca,'XTick',[min(FeatureParms.actual_freqs):10:max(FeatureParms.actual_freqs)])
+        % xlabel('Frequency [Hz]');ylabel('SD Move vs. Rest')
+        % Figure_Stretch(2)
+        %
+        % % Do by sensor-group
+        % % calculate total power in SMR during move cues, the relate to rest
+        % clear mod_depth_by_chan
+        % for ichan = 1:size(pzscore_moddepth_by_sensor_set,2)
+        %     mod_depth_by_chan(:,ichan) = mean(mean(pzscore_moddepth_by_sensor_set(:,ichan,freq_range_4gamma),1),3);
+        % end
+        % % Plot Modulation Depth Topography
+        % fig=figure;hold all;set(fig,'Tag',Extract.file_name{1});
+        % Plot_MEG_head_plot(mod_depth_by_chan,1,[1:3:306],[],[],fig); % NOTE: HARD CODED FOR MOD_DEPTH TO BE 102 SENSORS
+        % Plot_MEG_chan_locations(DEF_MEG_sensors_sensorimotor,0,[],fig );
+        % caxis_center(maxmag([maxmag(get(gca,'CLim')),1]));
+        % colorbar_with_label('SD Move vs. Rest','EastOutside');
+        % title([Extract.file_name{1} ' [' num2str(min(freq_range_4gamma)) '-' num2str(max(freq_range_4gamma)) 'Hz]'])
+        %
+        % % Do by sensor-group
+        % % calculate total power in SMR during move cues, the relate to rest
+        % clear mod_depth_by_chan
+        % for ichan = 1:size(pzscore_moddepth_by_sensor_set,2)
+        %     mod_depth_by_chan(:,ichan) = mean(mean(pzscore_moddepth_by_sensor_set(:,ichan,freq_range_4beta),1),3);
+        % end
+        % % Plot Modulation Depth Topography
+        % fig=figure;hold all;set(fig,'Tag',Extract.file_name{1});
+        % Plot_MEG_head_plot(mod_depth_by_chan,1,[1:3:306],[],[],fig); % NOTE: HARD CODED FOR MOD_DEPTH TO BE 102 SENSORS
+        % Plot_MEG_chan_locations(DEF_MEG_sensors_sensorimotor,0,[],fig );
+        % caxis_center(maxmag([maxmag(get(gca,'CLim')),1]));
+        % colorbar_with_label('SD Move vs. Rest','EastOutside');
+        % title([Extract.file_name{1} ' [' num2str(min(freq_range_4beta)) '-' num2str(max(freq_range_4beta)) 'Hz]'])
+        %
+        %
+        
+        %% TEMP
+        
+        clear FeatureParms
+        FeatureParms.feature_method = 'MEM';
+        FeatureParms.order = 100;
+        FeatureParms.feature_resolution = 1;
+        FeatureParms.ideal_freqs = [0:200]; % Pick freq or bins
+        FeatureParms.sample_rate = Extract.data_rate;
+        
+%         clear FeatureParms
+%         FeatureParms.feature_method='pwelch';
+%         FeatureParms.sample_rate = Extract.data_rate;
+%         FeatureParms.freq_bins=513;
+%         FeatureParms.nfft=2^10;% 1024
+%         FeatureParms.feature_resolution=FeatureParms.sample_rate/FeatureParms.nfft;
+%         
+        clear FeatureParms
+        FeatureParms.feature_method='fft';
+        FeatureParms.sample_rate = Extract.data_rate;
+        FeatureParms.nfft=2^9;% 1024
+        FeatureParms.feature_resolution=FeatureParms.sample_rate/FeatureParms.nfft;
+        FeatureParms.ideal_freqs = [4:120]; % Pick freq or bins
+        
+        clear FeatureParms
+        FeatureParms.feature_method='morlet';
+        FeatureParms.sample_rate = Extract.data_rate;
+        FeatureParms.feature_resolution=1; % doesnt work
+        FeatureParms.ideal_freqs = [1:120]; % doesnt work
+        
+        
+        clear FeatureParms
+        FeatureParms.feature_method='pBurg';
+        FeatureParms.sample_rate = Extract.data_rate;
+        FeatureParms.order=100;
+        FeatureParms.ideal_freqs = [1:200]; 
+         FeatureParms.feature_resolution=1; % doesnt work
+        
+        tic
+        
+        AnalysisParms.event_name_move = 'ParallelPort_Move';
+        %     event_name_rest = 'ParallelPort_Rest';
+        AnalysisParms.event_name_rest = 'ArtifactFreeRest';
+        
+        % disp(length(Events.(event_name_move)))
+        % disp(length(Events.(event_name_rest)))
+        
+        % Calc Move Power AFTER movement onset (event is in center of analysis window)
+        FeatureParms.window_lengthS=AnalysisParms.window_lengthS_move;
+        FeatureParms.window_length = floor(FeatureParms.window_lengthS*Extract.data_rate);
+        [feature_data_move,FeatureParms]=Calc_PSD_TimeLocked2(MEG_data_clean,Events.(AnalysisParms.event_name_move),FeatureParms);
+       
+        % Calc Rest power AROUND cue
+%         FeatureParms.window_lengthS = AnalysisParms.window_lengthS_rest;
+        FeatureParms.window_length = floor(FeatureParms.window_lengthS*Extract.data_rate);
+        [feature_data_rest,FeatureParms]=Calc_PSD_TimeLocked2(MEG_data_clean,Events.(AnalysisParms.event_name_rest)-floor(FeatureParms.window_length/2),FeatureParms);
+        
+        pzscore_moddepth= Calc_MEG_ModDepth(feature_data_move,feature_data_rest,Extract.channel_list,0);
+        [pzscore_moddepth_by_sensor_set, sensor_group_list] = Calc_MEG_ModDepth(feature_data_move,feature_data_rest,Extract.channel_list,1);
+        toc
+        
+        chanidx = sensors2chanidx(Extract.channel_list,37);
+        move = squeeze(mean(feature_data_move(:,chanidx,:),1));
+        rest = squeeze(mean(feature_data_rest(:,chanidx,:),1));
+        
+        fig = figure;
+        subplot(2,1,1);hold all
+        plot(FeatureParms.actual_freqs,rest,'r','LineWidth',3)
+        plot(FeatureParms.actual_freqs,move,'g','LineWidth',3)
+        xlim([0 100])
+        subplot(2,1,2);hold all
+        plot(FeatureParms.actual_freqs,squeeze(mean(pzscore_moddepth(:,chanidx,:),1)),'r','LineWidth',3)
+        plot( [min(FeatureParms.actual_freqs),max(FeatureParms.actual_freqs)],[1 1],'--k')
+        plot( [min(FeatureParms.actual_freqs),max(FeatureParms.actual_freqs)],[0 0],'--k')
+        plot( [min(FeatureParms.actual_freqs),max(FeatureParms.actual_freqs)],[-1 -1],'--k')
+        xlim([0 100])
+        Figure_Stretch(2)
+        %title(['Res: ' num2str(FeatureParms.feature_resolution) ', Order: ' num2str(FeatureParms.order)])
+
+        
+        % PSD-GUI
+        fig_psd=Plot_ModDepth_Variance(pzscore_moddepth_by_sensor_set,FeatureParms,sensor_group_list,1,Extract.file_name{1});
+        
+        
+        GUI_Inspect_ModDepth_wTopography(fig_psd,pzscore_moddepth,Extract.channel_list,pzscore_moddepth_by_sensor_set,FeatureParms,Extract.file_name{1});
+        
+        
+        %% Save
+        
+        Results.pzscore_moddepth=pzscore_moddepth;
+        Results.pzscore_moddepth_by_sensor_set=pzscore_moddepth_by_sensor_set;
+        Results.sensor_group_list=sensor_group_list;
+        Results.Extract=Extract;
+        Results.FeatureParms = FeatureParms;
+        Results.AnalysisParms=AnalysisParms;
+        
+        % Save processed data to file & write to metadata entry
+        [metadata_entry,saved_pointer_flag] = Metadata_Save_Pointer_Data(metadata_entry,Results,'ResultPointers.ModDepth_sss_trans_Cue','mat',local_base_path,server_base_path,overwrite_flag);
+        
+        % Save current metadata entry back to database
+        if saved_pointer_flag==1
+            Metadata=Metadata_Update_Entry(metadata_entry,Metadata);
+            Metadata_Write_to_TXT(Metadata,metadatabase_location);
+        end
+        
+    catch
+        disp('***********************************')
+        disp('*********** FAIL ******************')
+        disp('***********************************')
+    end
+end
+
+
+Metadata_Report_Property_Check(Metadata,criteria_struct,'ResultPointers.ModDepth_sss_trans_Cue');

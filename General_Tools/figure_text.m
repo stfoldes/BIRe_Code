@@ -1,0 +1,19 @@
+function figure_text(x,y,text_str)
+%
+% Okay, it pretty lame, but it helps me remember how to do this
+% having the naming-format "figure_*" will help look it up
+%
+% 2013-07-22 Foldes
+
+text(x,y,text_str,...
+    'HorizontalAlignment','center',...
+    'VerticalAlignment','bottom',...
+    'FontSize',12)
+
+
+% This is another way
+%    figpos = Figure_coordinates_from_data_space(gca,[xpoint data2plot(xpoint,isubject) 0.1 0.1]);
+%     annotation(gcf,'textbox',[figpos(1)+0.025 figpos(2)+0.025 figpos(3:4)],'String',Metadata(entry_idx_list(isubject)).subject,...
+%         'HorizontalAlignment','center',...
+%         'FitBoxToText','on',...
+%         'LineStyle','none');

@@ -1,0 +1,51 @@
+# Running MaxFilter remotly with ssh
+# Will take data from server and put sss and sss_trans data back on the server
+# Takes like 15 minutes
+# Make sure your bad channels list is on the server in the right place (see matlab)
+#
+# Must ssh in to Gus's old computer 
+# 	Open Terminal
+#	ssh gsudre@192.168.100.151
+#	enter password (takes a few minutes before it asks)
+# 
+# 2013-02-19 Stephen Foldes
+
+# ===USER INPUT===
+export SUBJECT_ID=NC02
+export SESSION_NUM=01
+export RUN_NUM=04
+# ================
+
+
+# ---DEFAULT PATHS---
+export SERVER_PATH=/mnt/Katz/experiments/meg_neurofeedback/
+export TEMP_STORAGE_PATH=/mnt/D/SSS/
+
+# ---AUTO GENERATE FILE NAME--
+export FILE_NAME_ORG=${SUBJECT_ID}s${SESSION_NUM}r${RUN_NUM}.fif
+export FILE_NAME_LOWERCASE="$(echo $FILE_NAME_ORG | tr '[:upper:]' '[:lower:]')"
+export FULL_FIF_PATH=${SERVER_PATH}${SUBJECT_ID}/S${SESSION_NUM}/${FILE_NAME_LOWERCASE}
+
+# ---RUN MAXFILTER---
+/usr/local/MaxFilter_Run_Code/MaxFilter_FOLDES_SSS_trans_SERVERSAVE.sh $FULL_FIF_PATH $TEMP_STORAGE_PATH
+
+
+
+
+
+
+
+
+
+
+
+# ---CHECK IF FILE EXISTS---
+if [ -f $FULL_FIF_PATH ] && echo "File exists" || echo "File does not exists"
+echo $FULL_FIF_PATH
+
+
+if [ -f $FULL_FIF_PATH ];
+then
+	echo "File exists" 
+fi
+
