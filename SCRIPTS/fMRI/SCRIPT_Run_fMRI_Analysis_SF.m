@@ -1,4 +1,5 @@
 % Script to run Analysis for fMRI data or pieces of analysis
+%   SEE: Run_fMRI_Analysis.m
 % 
 % Uses SPM for fMRI analysis and Freesurfer for reconstruction
 % Can pick and choose which processing to do
@@ -54,45 +55,19 @@ clc
     MRI_Info.FS_script =            '/Users/hrnel/Documents/MATLAB/meg_analysis/fMRI_Tools/FreesurferReconstruction_Maxwell.sh';
     MRI_Info.SPM2SUMA_script =      '/Users/hrnel/Documents/MATLAB/meg_analysis/fMRI_Tools/SPM2SUMA_Maxwell.sh';
     
-    % Where to move analyized files
-    output_path_design =            '[study_path]/FunctionalData/'; % Where should the results go?
-    output_prefix_design =          '[subject_id]_'; % What new prefix should the results have?
+    % Where to move analyzed files
+    MRI_Info.output_path_design =   '[study_path]/FunctionalData/'; % Where should the results go?
+    MRI_Info.output_prefix_design = '[subject_id]_'; % What new prefix should the results have?
 
     % Turn _design into strings
     MRI_Info = design2str_struct(MRI_Info);
     % Automatically sets some standard paths if haven't already
     MRI_Info=fMRI_Prep_Paths(MRI_Info);
-
+    
+    
 %% =======================================================
 %  ===PROCESSING==========================================
 %  =======================================================
 
-%% STEP 1: Convert Raw Data into NIFTI
-if Flags.convert
-    % Converts the raw data first to DICOM and then to NIFTI
-    % Nice to have: MRI_Info.raw_data_path, MRI_Info.epi_path
-    MRI_Info = fMRI_ConvertMRRCdata(MRI_Info);
-    % MAKES: NIFTI and DICOM folders
-end
-%% STEP 2: Construct brain and head surfaces via Freesurfer
-if Flags.FS
-    % Running Unix function for Freesurfer Reconstruction and SUMA_Spec
-    eval(['!' MRI_Info.FS_script ' ' MRI_Info.subject_id ' ' MRI_Info.study_path]);
-end
-%% STEP 3: Perform SPM on fMRI data
-if Flags.SPM
-    MRI_Info=SPM_Job_Wrapper(MRI_Info);
+Run_fMRI_Analysis(MRI_Info,Flags);
 
-    % Copy all 'coregspmT_0001' files in epi_path to output_path
-    % avoid MPRAGE, remove 'coregspmT_0001' from the file name, add subject id and name of epi folder
-    output_path =       str_from_design(MRI_Info,output_path_design); % Where should the results go?
-    output_prefix =     str_from_design(MRI_Info,output_prefix_design); % What new prefix should the results have?
-    
-    copy_files_recursive('coregspmT_0001.*',MRI_Info.epi_path,output_path,...
-        'avoid','MPRAGE','remove_from_name','coregspmT_0001','add_prefix',output_prefix,'add_prefix_from_path',1);
-end
-%% STEP 4: Convert functional data (via SPM) to SUMA surfaces
-if Flags.SPM2SUMA
-    %Running Unix function for converting functional SPM data to SUMA ready data
-    eval(['!' MRI_Info.SPM2SUMA_script ' ' MRI_Info.subject_id ' ' MRI_Info.study_path]);
-end

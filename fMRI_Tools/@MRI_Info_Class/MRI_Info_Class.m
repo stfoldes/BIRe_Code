@@ -32,7 +32,11 @@ classdef MRI_Info_Class
         ExpDef_TR =             []; % TR 'Interscan interval'
         ExpDef_event_onsets =   []; % vector of when conditions/events happen, in scan # (hardcoded, but can be changed)
         ExpDef_event_duration = []; % num scans for the event/condition to happen
-       
+        
+        % Mis
+        output_path =           char([]);
+        output_prefix =         char([]);
+        
     end
     
     properties (Hidden)
@@ -43,8 +47,11 @@ classdef MRI_Info_Class
         study_path_design =     char([]);
         raw_data_path_design =  char([]);
         epi_path_design =       char([]);
-        T1_file_design =        char([]);        
+        T1_file_design =        char([]);
         
+        output_path_design =    char([]);
+        output_prefix_design =  char([]);
+
     end
     
     methods
