@@ -32,7 +32,7 @@ clc
     % For advanced users, you can specify items such as:
     %   MRI_Info.subject_id = 'NC01';
     %   MRI_Info.raw_data_path = ['/Users/hrnel/Data/' MRI_Info.subject_id '/fMRI/Initial/Raw_Data'];
-    % Can also set paths to software, T1, etc. if you are doing unique processing.
+    % Can also set paths to software, T1, etc. if you are doing unique processing
 
     %===LEAVE BLANK FOR BASIC USE===
     MRI_Info = [];
