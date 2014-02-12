@@ -168,7 +168,7 @@ matlabbatch{5}.spm.stats.con.delete = 0;
 %% COREGISTER
 matlabbatch{6}.spm.spatial.coreg.estwrite.ref = {[MRI_Info.T1_file ',1']}; % <-- VARIABLE
 matlabbatch{6}.spm.spatial.coreg.estwrite.source = {[file_path filesep 'mean' file_name '.nii,1']};
-matlabbatch{6}.spm.spatial.coreg.estwrite.other = {[file_path filesep 'spmT_0001.img,1']}; % <--- This is different than the the batch
+matlabbatch{6}.spm.spatial.coreg.estwrite.other = {[file_path filesep 'spmT_0001.img,1']}; % <--- This could be a stats image dependency, but only works if hardcoded to spmT filename due to bug
 matlabbatch{6}.spm.spatial.coreg.estwrite.eoptions.cost_fun = 'nmi';
 matlabbatch{6}.spm.spatial.coreg.estwrite.eoptions.sep = [4 2];
 matlabbatch{6}.spm.spatial.coreg.estwrite.eoptions.tol = [0.02 0.02 0.02 0.001 0.001 0.001 0.01 0.01 0.01 0.001 0.001 0.001];
