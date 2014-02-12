@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Example demos.xml file for adding demos to the Help browser -->
+<!-- Your version of this file must be named "demos.xml" -->
+<demos>
+    <!-- Top-level Demo title in TOC -->
+    <name>regexpBuilder Demo</name>
+    <type>toolbox</type>
+    <icon>HelpIcon.DEMOS</icon>
+    <description>This demo shows how to use the regexpBuilder GUI.
+    </description>
+    <!-- First group of demos begins here -->
+    <demosection>
+        <label>regexpBuilder</label>
+        <!-- First demo begins here -->
+        <demoitem>
+            <!-- How demo is described in the Contents pane -->
+            <label>Using the regexpBuilder GUI</label>
+            <!-- Type adds a system icon and this name next to demo item -->
+            <type>M-file</type>
+            <!-- File to display in the Viewing pane -->
+            <file>./html/regexpBuilder_create_demo.html</file>
+            <!-- Supply optinoal thumbnail for demo as a .png file -->
+            <!-- Name it <demo_name>.png -->
+            <!-- for this demo it is ./html/formatted_block_demo.png -->
+        </demoitem>
+    </demosection>
+</demos>

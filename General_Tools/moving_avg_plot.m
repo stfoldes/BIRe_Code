@@ -1,5 +1,5 @@
+function fig = moving_avg_plot(data,x_data,window_size,variance_method,patch_color,fig)
 % fig = moving_avg_plot(data,x_data,window_size,variance_method,patch_color,fig);
-% Stephen Foldes 01-09-2012
 % 
 % Sliding window that performs a variance and mean calculation and plots w/ Variance_Patch_Plot
 % Window slide at 1 sample rate
@@ -21,16 +21,18 @@
 % Uses default of no edges
 % These options could be included in the 
 %
+% Stephen Foldes 01-09-2012
+% UPDATES:
+% 2014-01-16 Foldes: Quick updates
 
-function fig = moving_avg_plot(data,x_data,window_size,variance_method,patch_color,fig)
 
 
 %% Set Defaults if needed
-    if isempty(variance_method)
+    if ~exist('variance_method') || isempty(variance_method)
         variance_method = 0; %default is mean+-STD
     end
 
-    if isempty(fig)
+    if ~exist('fig') || isempty(fig)
         fig = figure;
     end 
     figure(fig);hold all
@@ -43,7 +45,7 @@ function fig = moving_avg_plot(data,x_data,window_size,variance_method,patch_col
         x_data = x_data';
     end
     
-    if isempty(patch_color) % default is grey
+    if ~exist('patch_color') || isempty(patch_color) % default is grey
         patch_color = 0.6*[1 1 1];
     end
     
@@ -53,5 +55,6 @@ function fig = moving_avg_plot(data,x_data,window_size,variance_method,patch_col
     for itime=1+window_size:size(data,1)
         smooth_data(itime,:) = (data(itime-window_size:itime,:));
     end
-    Variance_Patch_Plot(smooth_data,x_data,variance_method,patch_color,fig);
-
+    Plot_Variance_as_Patch(x_data,smooth_data,'variance_method',variance_method,'patch_color',patch_color,'fig',fig);
+    hold all
+    plot(x_data,mean(smooth_data,2),'k')

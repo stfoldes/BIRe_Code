@@ -26,16 +26,16 @@ classdef DB_MEG_Class < DB_Class
         run = char([]);
         
         % Subject Info
-        subject_type = char([]); % AB
-        gender = char([]);
-        handedness = char([]);
+        subject_type =  char([]); % AB
+        gender =        char([]);
+        handedness =    char([]);
 
         % Run Info
-        run_type = char([]); % Open_Loop_MEG
-        run_action = char([]); % Grasp
+        run_type =      char([]); % Open_Loop_MEG
+        run_action =    char([]); % Grasp
         run_task_side = char([]); % Right
         run_intention = char([]); % Imitate
-        run_info = char([]); % subject_action_side_intention (see Metadata_Script_AutoFill)
+        run_info =      char([]); % subject_action_side_intention (see Metadata_Script_AutoFill)
                 
         % Preprocessing Info and pointers
         Preproc = PreprocInfo_Class();

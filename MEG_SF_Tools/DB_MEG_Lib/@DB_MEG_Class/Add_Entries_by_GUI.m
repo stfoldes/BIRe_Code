@@ -67,7 +67,7 @@ for ifile=1:length(files)
 
     % ***DATABASE SPECIFIC***
     current_entry.entry_id = files{ifile}(1:end-4); % remove the .fif
-    [current_entry.subject, current_entry.session, current_entry.run] = file_name_spliter(current_entry.entry_id);
+    [current_entry.subject, current_entry.session, current_entry.run] = split_data_file_name(current_entry.entry_id);
     % ***********************
     
     % Tell user its a new file

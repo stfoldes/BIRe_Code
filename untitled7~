@@ -1,0 +1,36 @@
+
+
+ AvgFile = load('/home/foldes/Data/brainstorm_db/Test/data/Subject01_copy/1/data_1_average_140128_1525.mat')
+    ChannelFlag: [316x1 double]
+        Comment: 'Avg: 1 (220 files)'
+       DataType: 'recordings'
+         Device: 'Neuromag'
+         Events: []
+              F: [316x301 double]
+        History: {224x3 cell}
+           Time: [1x301 double]
+           nAvg: 220
+
+
+AvgFile.Time(143) = 0.042
+
+AvgFile.F =     [AvgFile.F(:,143) AvgFile.F(:,143)];
+AvgFile.Time =  [0 0];
+
+% Overwrite AvgFile (but save each field as a variable)
+save(AvgFile_fullfilename,'-struct','AvgFile');
+
+
+
+
+
+
+
+
+% If you are already working outside of the interface, you can call the function bst_scout_value from your script.
+% The parameter you are interested in is "XyzFunction", which defines how the values for the 3 orientations are combined into one value per vertex. Only three options are available: 'norm', 'pca', 'none'.
+% Norm takes (x^2+y^2+z^2) at each time point, PCA takes the first mode of an SVD decomposition.
+
+
+% TESS_SMOOTH_SOURCES: Gaussian smoothing matrix over a mesh.
+

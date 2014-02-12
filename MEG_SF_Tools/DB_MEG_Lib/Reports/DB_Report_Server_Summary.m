@@ -1,4 +1,5 @@
 % SCRIPT
+%
 % Writes a file that summarizes what data is on the server.
 % Specific for meg_neurofeedback type heirarchy
 % MAKE INTO FUNCTION THAT OUTPUTS THE INFO SO YOU CAN CHECK IT AGAINST THE DATABASE 
@@ -9,11 +10,12 @@
 % 2013-02-27 Foldes: Updated
 % 2013-03-05 Foldes: Now can save output file local
 % 2013-07-02 Foldes: User name --> computer name
+% 2014-01-17 Foldes: tiny update to old function names
 
 %%
 % path to server
-%path_server = '/home/foldes/Desktop/Katz/experiments/';
-path_server = '\\192.168.1.4\data\experiments\';
+path_server = '/home/foldes/Desktop/Katz/experiments/';
+% path_server = '\\192.168.1.4\data\experiments\';
 
 paradigm = 'meg_neurofeedback';
 outfilename = [paradigm '_summary.txt'];
@@ -96,7 +98,7 @@ for iitem = 3:length(dir_items)
                                 
                                 % check if pial surface made (in Subject/fMRI/Initial/.)
                                 fMRI_list{fMRI_folder_cnt}.pial_flag = 0;
-                                if ~isempty(findFiles('*.pial',[path_server paradigm filesep subject_id filesep 'fMRI' filesep dir_items_fMRI(iitem_fMRI).name]))
+                                if ~isempty(search_dir([path_server paradigm filesep subject_id filesep 'fMRI' filesep dir_items_fMRI(iitem_fMRI).name],'*.pial'))
                                     fMRI_list{fMRI_folder_cnt}.pial_flag = 1;
                                 end
                                 

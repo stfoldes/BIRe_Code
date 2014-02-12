@@ -6,7 +6,8 @@ function [data,FIF_timeS,chan_str_list,Extract] =  Load_from_FIF(Extract,chan_ty
 %
 % Scales MEG data by 10^13,
 % STI101 is the only STI channel returned currently
-% Extract.(full_)file_name can be a single file or a cell of many files to combine (NOT WORKING 2013-12-06)
+% Extract.(full_)file_name can be a single file 
+%   or a cell of many files to combine (NOT WORKING 2013-12-06)
 %
 % EXAMPLE OF MINIMUM Extract. struct
 %     Extract.full_file_name = '/home/foldes/Data/MEG/Test/TEST_movementcue_timing_w_photodiode.fif';
@@ -39,47 +40,14 @@ function [data,FIF_timeS,chan_str_list,Extract] =  Load_from_FIF(Extract,chan_ty
 % 2013-12-06 Foldes: if no file name, does uigetfile
 % 2013-12-06 Foldes: MAJOR, no longer supports multiple files
 % 2013-12-18 Foldes: Extract gets more writen too, and is output. minor cleaning
+% 2014-01-23 Foldes: Added Prer_Extract_MEG
 
 
 %% Load DATA
 
 data = []; FIF_timeS = [];
 
-% can just put in file name
-if ~isstruct(Extract)
-    temp = Extract;
-    clear Extract
-    Extract.full_file_name = temp;
-end
-
-% GUI for file if not given
-if ~isfield(Extract,'full_file_name') && ~isfield(Extract,'file_name')
-    [FileName,PathName] = uigetfile('*.fif','Select file to load','/home/foldes/Data/MEG'); % default for Stephen, but won't hurt anything
-    Extract.full_file_name = [PathName filesep FileName];
-end
-
-
-% If full file name doesn't exist, make it, if it does exist, use it
-if ~isfield(Extract,'full_file_name')
-    current_full_file_name = [Extract.file_path filesep Extract.file_name Extract.file_extension];
-else % .full_file_name exists, so use it (trumps .file_name, etc)
-    current_full_file_name = Extract.full_file_name;
-    [Extract.file_path Extract.file_name Extract.file_extension] = fileparts(current_full_file_name);
-end
-
-% Check that the file exists, if it doesn't try upper/lower case
-Extract.file_name = filename_caseinsensitive(Extract.file_name,Extract.file_path);
-% write new spelling to full_file_name
-current_full_file_name = [Extract.file_path filesep Extract.file_name Extract.file_extension];
-
-if ~exist(current_full_file_name)
-    errordlg(['CAN NOT FIND FILE: ' current_full_file ' CHECK PATHS AND SPELLING'],'Data File Not Found')
-end
-
-% Load .FIF parameters
-clear fif_fileExtract.filter_stop
-fif_file = fiff_setup_read_raw(current_full_file_name);
-Extract.base_sample_rate = fif_file.info.sfreq; % get sampling rate from file 2013-11-21
+[Extract,fif_file] = Prep_Extract_MEG(Extract);
 
 % Get info about channels that match the given chan_type
 chan_cnt = 0; clear chan_idx_list chan_str_list
@@ -90,8 +58,6 @@ for ichan = 1:size(fif_file.info.ch_names,2)
         chan_str_list(chan_cnt,:) = fif_file.info.ch_names{ichan};
     end
 end
-
-Extract = populate_field_with_default(Extract,'decimation_factor',1);
 
 % For MEG, look to see if channel list is already defined, if so, use it to limit the channels to extract
 if strcmpi(chan_type,'MEG')
@@ -106,10 +72,12 @@ disp(['Reading ' chan_type ' data'])
 clear temp_raw_file_data FIF_file_time
 [temp_raw_file_data, FIF_file_timeS]=fiff_read_raw_segment(fif_file,fif_file.first_samp,fif_file.last_samp,chan_idx_list);
 
-if ~isfield(Extract,'data_rate') && ~isfield(Extract,'base_sample_rate')
-    Extract.base_sample_rate=median(diff(FIF_file_timeS)); % 2013-12-16
-end
-Extract.data_rate = Extract.base_sample_rate/Extract.decimation_factor;
+% THIS SHOULDN'T HAPPEN
+% if ~isfield(Extract,'data_rate') && ~isfield(Extract,'base_sample_rate')
+%     % use fif_file.info.sfreq instead
+%     Extract.base_sample_rate=median(diff(FIF_file_timeS)); % 2013-12-16
+% end
+% Extract.data_rate = Extract.base_sample_rate/Extract.decimation_factor;
 
 % Each channel type might be treated differently.
 switch chan_type

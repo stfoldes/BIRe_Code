@@ -29,7 +29,7 @@ files = uigetfile('.fif','Select Files to Add',local_path,...
 for ifile=1:length(files)
     % ***DATABASE SPECIFIC***
     Meda(ifile).file_base_name = files{ifile}(1:end-4); % remove the .fif
-    [Meda(ifile).subject, Meda(ifile).session, Meda(ifile).run] = file_name_spliter(Meda(ifile).file_base_name,5);
+    [Meda(ifile).subject, Meda(ifile).session, Meda(ifile).run] = split_data_file_name(Meda(ifile).file_base_name);
     % ***********************
 end
  

@@ -11,10 +11,10 @@
 classdef DB_Class
     properties
         % Basic file info
-        entry_id = char([]);
-        subject = char([]);
-        session = char([]);
-        date = char([]);
+        entry_id =  char([]);
+        subject =   char([]);
+        session =   char([]);
+        date =      char([]);
     end
     properties (Hidden)
         % MUST USE fieldnames_all() TO GET HIDDEN NAMES

@@ -59,7 +59,7 @@ end
 field_list = fieldnames_all(in_struct); % Don't forget to use fieldnames_all for hidden properties
 
 failed_translate = 1;
-try_cnt = 10; % try 10 times to translate, else fail
+try_cnt = 100; % try 100 times to translate, else fail
 
 % Repeat translation if there are errors. Takes care of dependencies
 while (failed_translate > 0) && (try_cnt>0) 
@@ -85,12 +85,13 @@ while (failed_translate > 0) && (try_cnt>0)
                 end % try
             end % match data type
         end % field name match
+        
     end % field loop
 end % failed translate
 
 % tried to fit too many times, fail!
 if try_cnt==0
-    error(['Design incorrectly constructed. Check: .' current_field])
+    error(['Design incorrectly constructed. ' translation_str])
 end
 
 

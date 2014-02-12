@@ -27,18 +27,52 @@ function [save_flag,bad_chan_list,bad_segments] = Mark_Bad_MEG(Extract,prebadcha
 % SEE: Batch_Preprocessing_MEG.m
 %
 % EXAMPLE:
-%     prebadchan_file = [DB_entry.file_path(server_path) filesep DB_entry.Preproc.Pointer_prebadchan];
-%     event_file = [DB_entry.file_path(server_path) filesep DB_entry.Preproc.Pointer_Events];
+%     Marks bad channels and time segments on a fif file using gui
+%     Writes bad channels to a file for Maxfilter-code to use
+%     2014-01-23 Foldes
+% 
+%         Extract.full_file_name = '/home/foldes/Data/MEG/DBI05/S01/dbi05s01r14_tsss_trans.fif';
+%         Extract = Prep_Extract_MEG(Extract); % OPTIONAL
+% 
+%         [save_flag,bad_chan_list,bad_segments] = Mark_Bad_MEG(Extract);
+% 
+%         % write bad channels to a file (just the channel numbers) 
+%         bad_chan_file_name = [Extract.file_path filesep Extract.file_name '_badchans']; % clever naming
+%         if save_flag
+%             file_id = fopen(bad_chan_file_name,'w');   
+%             for istr =1:size(bad_chan_list,1)
+%                 fprintf(file_id,'%s ', num2str( bad_chan_list(istr,:) ));
+%             end
+%             fclose(file_id);
+%         end
+%         % move to server for maxfilter-code to use
+%      
+% 
+%     Using Database
+%       prebadchan_file = [DB_entry.file_path(server_path) filesep DB_entry.Preproc.Pointer_prebadchan];
+%       event_file = [DB_entry.file_path(server_path) filesep DB_entry.Preproc.Pointer_Events];
+%       [save_flag, bad_chan_list, bad_segments] = Mark_Bad_MEG(Extract,prebadchan_file,event_file);
+%            
+%       if save_flag == 1
+%          % Write data to file
+%          [DB_entry,saved_pointer_flag1] = DB_entry.save_pointer(bad_chan_list,pointer_name,'str2txt',Flags.badchans_Overwrite);
+%          % load the events so you don't overwrite stuff
+%          if exist(event_file)==2; load(event_file);end
+%          Events.bad_segments = bad_segments;
+%          [DB_entry,saved_pointer_flag2] = DB_entry.save_pointer(Events,'Preproc.Pointer_Events','mat',Flags.badchans_Overwrite);
+%       end
 %
+%               
 % 2013-02-20 Foldes
 % UPDATES:
 % 2013-08-20 Foldes: MAJOR - branch from Mark_Bad_Channels
 % 2013-09-03 Foldes: Bug fix
+% 2014-01-23 Foldes: Small update, Improved examples
 
 %% Get MEG
 
 % IMPROVEMENTS: Adding STI to show, plot bad channels AND current channels?
-[MEG_data,TimeVecs.timeS,MEG_chan_list] = Load_from_FIF(Extract,'MEG');
+[MEG_data,TimeVecs.timeS,MEG_chan_list,Extract] = Load_from_FIF(Extract,'MEG');
 % Low pass filter (30Hz) ***A BIT SLOW***
 disp('CALCULATING: low-pass filter of sensors')
 clear photodiode_processed filter_b filter_a

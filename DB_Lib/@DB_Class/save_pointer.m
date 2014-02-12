@@ -103,7 +103,6 @@ end
 function DB_Move_Pointer_File_To_Server(obj,original_file,overwrite_flag)
 % Simply tries to move a file from a local place to a server location
 % Really this is just a space-saver.
-% Uses standard DB info and assumes standard data organization (/NC01/S01/)
 %
 % Foldes 2013-03-05
 

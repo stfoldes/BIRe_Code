@@ -1,11 +1,12 @@
 % From .fif, do a power analysis from manually picked events
 %
 % 2013-12-05 Foldes
+% Verified 2014-02-07
 
 clear
 close all
 
-Extract.full_file_name      = '/home/foldes/Data/MEG/DBI05/S01/dbi05s01r14_tsss_trans.fif';
+Extract.full_file_name      = '/home/foldes/Data/MEG/DBI05/S01/dbi05s01r03_tsss_trans.fif';
 ExpDefs.paradigm_type       = 'Mapping';
 AnalysisParms.event_type    = 'cue';
 
@@ -102,12 +103,12 @@ for isensor = 1:length(sensor_list)
     sensor_num = sensor_list(isensor);
     
     %---Feature Parameters (FeatureParms.)---
-    FeatureParms                        = FeatureParms_Class;
-    FeatureParms.feature_method         = 'burg';
-    FeatureParms.order                  = 30;
-    FeatureParms.feature_resolution     = 1;
-    FeatureParms.ideal_freqs            = [0:120];
-    FeatureParms.sample_rate            = Extract.data_rate;
+    %     FeatureParms                        = FeatureParms_Class;
+    %     FeatureParms.feature_method         = 'burg';
+    %     FeatureParms.order                  = 30;
+    %     FeatureParms.feature_resolution     = 1;
+    %     FeatureParms.ideal_freqs            = [0:120];
+    %     FeatureParms.sample_rate            = Extract.data_rate;
     FeatureParms.window_lengthS         = 1;
     FeatureParms.feature_update_rateS   = 0.1;
     

@@ -1,0 +1,210 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Running the regexpBuilder GUI</title><meta name="generator" content="MATLAB 8.2"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2013-10-16"><meta name="DC.source" content="regexpBuilder_create_demo.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Running the regexpBuilder GUI</h1><!--introduction--><p>This demo is designed to explain how to use the regexpBuilder GUI and walk through a simple example</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Open the regexpBuilder GUI</a></li><li><a href="#2">Add the regexp</a></li><li><a href="#3">Add the text</a></li><li><a href="#4">Using regexp options</a></li><li><a href="#5">Examining the Results</a></li><li><a href="#6">Using tokens</a></li><li><a href="#7">Evaluating the regexp</a></li><li><a href="#8">Regexp Command printing options</a></li><li><a href="#9">Options description</a></li><li><a href="#10">Printing the command again</a></li><li><a href="#11">Selecting a file to import</a></li><li><a href="#12">Importing text</a></li></ul></div><h2>Open the regexpBuilder GUI<a name="1"></a></h2><p>To begin using the regexpBuilder GUI, simply run the regexpBuilder script <tt>regexpBuilder</tt>.</p><p><tt>regexpBuilder</tt></p><img vspace="5" hspace="5" src="regexpBuilder_create_demo_01.png" alt=""> <h2>Add the regexp<a name="2"></a></h2><p>Adding the regexp means simply typing in the regexp we want to use (or copying and pasting, if we already have it somewhere else) into the regexp textbox.</p><p>For our example, we will use the the regexp <tt>\ [a-z]</tt>, which looks for a space followed by a lowercase letter. After this, our GUI looks like the following:</p><img vspace="5" hspace="5" src="regexpBuilder_create_demo_02.png" alt=""> <h2>Add the text<a name="3"></a></h2><p>Adding the actual text we want to use the regexp on follows the same process. In our case, we'll use the string 'See Spot. See Spot run.'. Typing this into the text textbox, we get:</p><img vspace="5" hspace="5" src="regexpBuilder_create_demo_03.png" alt=""> <h2>Using regexp options<a name="4"></a></h2><p>Our regexp only finds lowercase letters, so it only matches the <i>r</i> in <i>run</i>. To have it also match the <i>S</i> in <i>Spot</i> and <i>See</i>, we can change the regexp, or we can click the <b>Ignore Case</b> checkbox. This toggles the <tt>ignorecase</tt> flag sent to our regexp command so that case no longer matters. Now our regexp matches the <i>r</i> and the <i>S</i>'s:</p><img vspace="5" hspace="5" src="regexpBuilder_create_demo_04.png" alt=""> <h2>Examining the Results<a name="5"></a></h2><p>As you may notice, any matches found with the regexp are underlined as you type. They are also presented on the left side in seperate textboxes. Each textbox shows the output produced by the <tt>regexp</tt> command with that option selected for <tt>outselect</tt>.  Clicking on any of the buttons will open a new, larger window showing that ouput.</p><img vspace="5" hspace="5" src="regexpBuilder_create_demo_05.png" alt=""> <h2>Using tokens<a name="6"></a></h2><p>Tokens are a powerful part of using regexp. They are created by inserting <tt>()</tt> around some portion of the regexp. They can then be refered to later in the regexp, in the substitute section of <tt>regexprep</tt>, or as output seperate from just the matched portions of the text. They can even be named, by using the <tt>(?&lt;name&gt; )</tt> syntax. We'll name the first letter portion of our regexp <i>fl</i>, and make it into a named token. Our new regexp then looks like</p><pre>  \ (?&lt;fl&gt;[a-z])</pre><p><b>regexpBuilder</b> finds and highlights any tokens it finds in the regexp and also highlights any matches in the text. Each token gets a different color. Thus, after changing our regexp, the GUI should look like</p><img vspace="5" hspace="5" src="regexpBuilder_create_demo_06.png" alt=""> <h2>Evaluating the regexp<a name="7"></a></h2><p><b>regexpBuilder</b> evaluates the regexp provided as you type and change options. It evaluates the regexp when you click the <b>Evaluate</b> button, but it also prints the <tt>regexp</tt> command with the specified options that were used to the Command Window in Matlab. This command can then be copied and pasted into wherever you want to use it.</p><p>The command we generate is</p><pre class="codeoutput">Using function call:
+[Start,End,TokenExtents,Match,Tokens,Names,Split] = regexp(TEXT,REGEXP,'start','end','tokenExtents','match','tokens','names','split','ignorecase');
+</pre><h2>Regexp Command printing options<a name="8"></a></h2><p>The default options for printing the command can produce rather wordy output, as every output option is given. We can turn off extraneous outputs, along with substituting the actual regexp or text instead of their placeholders, in the <b>Evaluate</b> options menu, obtained by clicking the down-arrow next to the <b>Evaluate</b> button (opening the below window).</p><img vspace="5" hspace="5" src="regexpBuilder_create_demo_07.png" alt=""> <h2>Options description<a name="9"></a></h2><p>In this window, we can change what additional parts of the <tt>regexp</tt> command we want to display. For instance, if we only want the matching portion and the token list, and want to print the regexp that we are using, we deselect all but the <tt>Match</tt> and <tt>Tokens</tt> checkboxes, and select the <tt>Print regexp in command</tt> checkbox so that the window looks like the following:</p><img vspace="5" hspace="5" src="regexpBuilder_create_demo_08.png" alt=""> <h2>Printing the command again<a name="10"></a></h2><p>Once the options are set to your preferences, click either of the <b><tt>Print Regexp Command</tt></b> buttons (the difference should be self-evident). The options will be 'saved' when you close the window, but will not save when <b>regexpBuilder</b> is closed. If you want the settings to persist across <b>regexpBuilder</b> closings, click the <tt>Save as default</tt> button.</p><p>With our current options, we'll generate</p><pre class="codeoutput">Using function call:
+[Tokens,Match] = regexp(TEXT,'\ (?&lt;fl&gt;[a-z])','ignorecase','tokens','match');
+</pre><h2>Selecting a file to import<a name="11"></a></h2><p>For our next trick, we'll import text from an outside source. We can import text from anything Matlab's <tt>urlread</tt> can handle, so we'll chose regexpBuilder's source file. Clicking on the down-arrow button next to the text field will open a file chooser dialog, but we will just type in the file name, like so.</p><img vspace="5" hspace="5" src="regexpBuilder_create_demo_09.png" alt=""> <h2>Importing text<a name="12"></a></h2><p>To actually import the text, simply click the <tt>Import Text</tt> button or press enter, and <tt>regexpBuilder</tt> will attempt to read in the file and add any text to the text textbox. Since Matlab has no problem reading a <tt>.m</tt> file, the source for <tt>regexpBuilder</tt> will appear:</p><img vspace="5" hspace="5" src="regexpBuilder_create_demo_10.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2013b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Running the regexpBuilder GUI
+% This demo is designed to explain how to use the regexpBuilder GUI and
+% walk through a simple example
+
+%% Open the regexpBuilder GUI
+% To begin using the regexpBuilder GUI, simply run the regexpBuilder
+% script |regexpBuilder|.
+% 
+% |regexpBuilder|
+rb = regexpBuilder;
+handles = guidata(rb);
+
+%% Add the regexp
+% Adding the regexp means simply typing in the regexp we want to use (or
+% copying and pasting, if we already have it somewhere else) into the
+% regexp textbox. 
+% 
+% For our example, we will use the the regexp |\ [a-z]|, which
+% looks for a space followed by a lowercase letter.
+% After this, our GUI looks like the following:
+handles.jRegex.setText('\ [a-z]');
+cb = get(handles.jRegex,'KeyTypedCallback');
+cb{1}(handles.jRegex,[],cb{2:end});
+
+%% Add the text
+% Adding the actual text we want to use the regexp on follows the same
+% process. In our case, we'll use the string 'See Spot.
+% See Spot run.'. Typing this into the text textbox, we get:
+handles.jText.setText('See Spot. See Spot run.');
+cb{1}(handles.jText,[],cb{2:end});
+
+%% Using regexp options
+% Our regexp only finds lowercase letters, so it only matches the _r_ in
+% _run_. To have it also match the _S_ in _Spot_ and _See_, we can change
+% the regexp, or we can click the *Ignore Case* checkbox. This toggles the
+% |ignorecase| flag sent to our regexp command so that case no longer
+% matters. Now our regexp matches the _r_ and the _S_'s:
+set(handles.icase,'Value',1);
+cb{1}(handles.jText,[],cb{2:end});
+
+%% Examining the Results
+% As you may notice, any matches found with the regexp are underlined as
+% you type. They are also presented on the left side in seperate textboxes.
+% Each textbox shows the output produced by the |regexp| command with that
+% option selected for |outselect|.  Clicking on any of the buttons will
+% open a new, larger window showing that ouput. 
+cb = get(handles.startButton,'Callback');
+cb(handles.startButton,[]);
+
+%% Using tokens
+% Tokens are a powerful part of using regexp. They are created by inserting
+% |()| around some portion of the regexp. They can then be refered to
+% later in the regexp, in the substitute section of |regexprep|, or as
+% output seperate from just the matched portions of the text. They can even
+% be named, by using the |(?<name> )| syntax. We'll name the first letter
+% portion of our regexp _fl_, and make it into a named token. Our new
+% regexp then looks like
+% 
+%    \ (?<fl>[a-z])
+%
+% *regexpBuilder* finds and highlights any tokens it finds in the regexp
+% and also highlights any matches in the text. Each token gets a different
+% color. Thus, after changing our regexp, the GUI should look like 
+handles = guidata(handles.figure1);
+close(handles.bo);
+figure(rb);
+handles.jRegex.setText('\ (?<fl>[a-z])');
+cb = get(handles.jRegex,'KeyTypedCallback');
+cb{1}(handles.jRegex,[],cb{2:end});
+
+%% Evaluating the regexp
+% *regexpBuilder* evaluates the regexp provided as you type and change
+% options. It evaluates the regexp when you click the *Evaluate* button,
+% but it also prints the |regexp| command with the specified options that
+% were used to the Command Window in Matlab. This command can then be
+% copied and pasted into wherever you want to use it.
+%
+% The command we generate is 
+cb = get(handles.evaluate,'Callback');
+cb(handles.evaluate,[]);
+
+%% Regexp Command printing options
+% The default options for printing the command can produce rather wordy
+% output, as every output option is given. We can turn off extraneous
+% outputs, along with substituting the actual regexp or text instead of
+% their placeholders, in the *Evaluate* options menu, obtained by clicking
+% the down-arrow next to the *Evaluate* button (opening the below
+% window).
+cb = get(handles.evalOptions,'Callback');
+cb(handles.evalOptions,[]);
+
+%% Options description
+% In this window, we can change what additional parts of the |regexp|
+% command we want to display. For instance, if we only want the matching
+% portion and the token list, and want to print the regexp that we are
+% using, we deselect all but the |Match| and |Tokens| checkboxes, and
+% select the |Print regexp in command| checkbox so that the window looks
+% like the following:
+handles = guidata(rb);
+eo = guidata(handles.eo);
+set([eo.checkStart,eo.checkEnd,eo.checktokenExtents,...
+    eo.checkNames,eo.checkSplit],'Value',false);
+cb = get(eo.printRegexp,'Callback');
+set(eo.printRegexp,'Value',true);
+cb(eo.printRegexp,[]);
+
+%% Printing the command again
+% Once the options are set to your preferences, click either of the *|Print
+% Regexp Command|* buttons (the difference should be self-evident). The
+% options will be 'saved' when you close the window, but will not save when
+% *regexpBuilder* is closed. If you want the settings to persist across
+% *regexpBuilder* closings, click the |Save as default| button. 
+%
+% With our current options, we'll generate
+cb = get(eo.printRegexpCommandAndClose,'Callback');
+cb(eo.printRegexpCommandAndClose,[]);
+
+%% Selecting a file to import
+% For our next trick, we'll import text from an outside source. We can
+% import text from anything Matlab's |urlread| can handle, so we'll chose
+% regexpBuilder's source file. Clicking on the down-arrow button next to
+% the text field will open a file chooser dialog, but we will just type in
+% the file name, like so.
+figure(rb);
+set(handles.ImportPath,'String','.\Plugins\regexpBuilder\RegexpBuilder.m');
+
+%% Importing text
+% To actually import the text, simply click the |Import Text| button or
+% press enter, and |regexpBuilder| will attempt to read in the file and add
+% any text to the text textbox. Since Matlab has no problem reading a |.m|
+% file, the source for |regexpBuilder| will appear:
+figure(rb);
+cb = get(handles.ImportButton, 'Callback');
+cb(handles.ImportButton,[]);
+
+##### SOURCE END #####
+--></body></html>

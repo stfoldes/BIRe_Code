@@ -1,32 +1,10 @@
 % Calculate power and save at ResultPointers.Power_tsss_trans_Cue
 % 2013-06-08 Foldes [2013-11-22 Branched]
 % UPDATES:
+% 
+IN PROGRESS
+function [Power,Extract,FeatureParms,AnalysisParms]=Calc_Power_MoveRest(MEG_data,Events,Extract,FeatureParms,AnalysisParms)
 
-function [Power,Extract,FeatureParms,AnalysisParms]=Calc_Power_MoveRest(DB_entry,Extract,FeatureParms,AnalysisParms)
-
-%% ----------------------------------------------------------------
-%  -----------------CODE STARTS------------------------------------
-%  ----------------------------------------------------------------
-
-%% Load Events (from server)
-events_loaded_flag = DB_entry.load_pointer('Preproc.Pointer_Events');
-if events_loaded_flag == -1 % its not really a flag, but it will work like this
-    warning(['NO EVENTS FILE for ' DB_entry.entry_id])
-end
-% make sure there aren't bad segments being used
-Events = Calc_Event_Removal_wBadSegments(Events,Extract.data_rate);
-
-%         event_file = [DB_entry.file_path('server') filesep DB_entry.Preproc.Pointer_Events];
-%         % if the file doesn't exist, OR its older than 2013-08-01, then yell!
-%         if exist(event_file)~=2
-%             warning([event_file ' does not exist'])
-%         elseif date_subtraction(datestr('2013-08-01'),date_file_timestamp(event_file))<0
-%             warning([event_file ' is too old'])
-%         else
-%             load(event_file);
-%             % Just make sure there aren't bad segments being used
-%             Events = Calc_Event_Removal_wBadSegments(Events,Extract.data_rate);
-%         end
 
 %% Define Events
 
@@ -39,39 +17,6 @@ AnalysisParms.events_move = new_move_events+floor(AnalysisParms.rx_timeS_move*Ex
 % add in RX time to each event
 AnalysisParms.events_rest = Events.(AnalysisParms.event_name_rest)+floor(AnalysisParms.rx_timeS_rest*Extract.data_rate);
 
-%% Load MEG data
-
-[MEG_data] =  Load_from_FIF(Extract,'MEG');
-TimeVecs.data_rate = Extract.data_rate;
-FeatureParms.sample_rate = Extract.data_rate;
-[TimeVecs.target_code_org,TimeVecs.timeS] = Load_from_FIF(Extract,'STI');
-
-%     % Inspect event times
-%     figure;hold all
-%     plot(TimeVecs.timeS,TimeVecs.target_code_org')
-%     stem(TimeVecs.timeS(AnalysisParms.events_move),5*ones(1,length(AnalysisParms.events_move))','g.-')
-%     stem(TimeVecs.timeS(AnalysisParms.events_rest),5*ones(1,length(AnalysisParms.events_rest))','r.-')
-%     Figure_Stretch(2)
-
-%% Load SSP (from server)
-
-if AnalysisParms.SSP_Flag ==1
-    ssp_file = [DB_entry.file_path(server_path) filesep DB_entry.entry_id '_SSP_' Extract.file_type];
-    % try to load if possible, or calculate
-    if exist(ssp_file)==2
-        load(ssp_file);
-    end
-    
-    clear MEG_data_clean % 2013-06-26 Foldes
-    % Apply
-    ssp_projector = Calc_SSP_Filters(ssp_components);
-    MEG_data_clean = (ssp_projector*MEG_data')';
-    clear MEG_data
-else
-    MEG_data_clean = MEG_data;
-    clear MEG_data
-end
-
 %% Calc Power
 % disp(length(Events.(event_name_move)))
 % disp(length(Events.(event_name_rest)))
@@ -79,12 +24,12 @@ end
 % Calc Rest Power
 FeatureParms.window_lengthS = AnalysisParms.window_lengthS_rest;
 FeatureParms.window_length = floor(FeatureParms.window_lengthS*Extract.data_rate);
-[feature_data_rest,FeatureParms]=Calc_PSD_TimeLocked(MEG_data_clean,AnalysisParms.events_rest,FeatureParms);
+[feature_data_rest,FeatureParms]=Calc_PSD_TimeLocked(MEG_data,AnalysisParms.events_rest,FeatureParms);
 
 % Calc Move Move
 FeatureParms.window_lengthS=AnalysisParms.window_lengthS_move;
 FeatureParms.window_length = floor(FeatureParms.window_lengthS*Extract.data_rate);
-[feature_data_move,FeatureParms]=Calc_PSD_TimeLocked(MEG_data_clean,AnalysisParms.events_move,FeatureParms);
+[feature_data_move,FeatureParms]=Calc_PSD_TimeLocked(MEG_data,AnalysisParms.events_move,FeatureParms);
 
 %% PLOTS
 

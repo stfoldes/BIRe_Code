@@ -1,4 +1,4 @@
-function copy_files_recursive(org_search_str,org_path,out_path,varargin) % 'add_prefix','add_prefix_from_path','remove_from_name','avoid','move','case_insensitive'
+function copy_files_recursive(org_search_str,org_path,out_path,varargin) % 'add_prefix','add_prefix_from_path','remove_from_name','avoid','move','CaseInsensitive'
 % Copies (or moves) files that match a search string to a destiation folder
 % Searchs for files recursively (i.e. within subfolders of org_path)
 % Destiation folder will be made if doesn't exist
@@ -13,7 +13,7 @@ function copy_files_recursive(org_search_str,org_path,out_path,varargin) % 'add_
 %   remove_from_name:       String to remove from original file name (e.g. removing the org_search_str)  
 %   avoid:                  Will skip files that have this string in them (case sensitive for now)
 %   move:                   1 = remove original (i.e. move, not copy) [DEFAULT: Copy (0)]
-%   case_insensitive:       1 = search is case insensitive (see: search_dir) [DEFAULT: case sensitive (0)]
+%   CaseInsensitive:        1 = search is case insensitive (see: search_dir) [DEFAULT: case sensitive (0)]
 %   add_prefix_from_path:   Use folder name in the prefix of the new file [add_prefix folder_prefix '_' filename]
 %                           e.g. ../DBI05/NIFTI/Hand/spmT.nii --> add_prefix_from_path = 1 --> 'Hand_spmT.nii'
 %                                add_prefix_from_path = 3 --> 'DBI05_spmT.nii'
@@ -25,7 +25,7 @@ function copy_files_recursive(org_search_str,org_path,out_path,varargin) % 'add_
 %       copy_files_recursive('*.nii','~/Data/Subject1/','~/Data/NIIs/')
 %
 %   Move all nii files with 'stephen' in the name (case insensitive)
-%       copy_files_recursive('*stephen*.nii','~/Data/Subject1/','~/Data/NIIs/','move',1,'case_insensitive',1)
+%       copy_files_recursive('*stephen*.nii','~/Data/Subject1/','~/Data/NIIs/','move',1,'CaseInsensitive',1)
 %
 %   Copy all nii files that start with 'epi_', but not it can't have 'MPRAGE' in the name
 %       copy_files_recursive('epi_*.nii','~/Data/Subject1/','~/Data/NIIs/','avoid','MPRAGE')Foldes
@@ -38,7 +38,7 @@ function copy_files_recursive(org_search_str,org_path,out_path,varargin) % 'add_
 %   Specific example. Uses designs (see: str_from_design.m)
 %   Copy all 'epi_*.nii' files in C:\Data\NT10\fMRI\NIFTI\ to C:\Data\NT10\fMRI\Functional\
 %   avoid 'MPRAGE', remove 'epi_' from the file name (not dependent on org_file_design!), add 'fMRI_NT10_'
-%
+%_i
 %       % Designs used to build paths and strings 
 %       org_path_design =           '[study_path]\NIFTI\';
 %       org_file_design =           'epi_*.nii';
@@ -68,14 +68,14 @@ parms.add_prefix_from_path =    0;
 parms.remove_from_name =        [];
 parms.avoid =                   [];
 parms.move =                    0;
-parms.case_insensitive =        0;
-parms.strict =                  0; % UNDOCUMENTED, 1 = search needs a perfect match to pattern, also doesn't do subfolders (see: search_dir)
+parms.CaseInsensitive =         0;
+parms.Strict =                  0; % UNDOCUMENTED, 1 = search needs a perfect match to pattern, also doesn't do subfolders (see: search_dir)
 parms = varargin_extraction(parms,varargin);
 
 %% CODE
 
 % Find original files
-files2move = search_dir(org_path,org_search_str,parms.strict,parms.case_insensitive);
+files2move = search_dir(org_path,org_search_str,'Strict',parms.Strict,'CaseInsensitive',parms.CaseInsensitive);
 
 % Make output folder if it doesn't exist
 if exist(out_path,'dir')~=7

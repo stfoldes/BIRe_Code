@@ -58,6 +58,7 @@ function fig_out = Plot_Bars(x_data,y_data,varargin) % OPTIONS: error_method, Co
 % 2013-09-15 Foldes [branched from Plot_QuantileBar 2010-03-17]
 % UPDATES:
 % 2013-09-24 Foldes: Finished commenting, fixed bugs
+% 2014-01-27 Foldes: color_name2rgb.m 
 
 % Unpack varargin
 defaults.error_method = 'quantile';
@@ -170,13 +171,14 @@ if iscell(parms.Color)
     parms.Color = [];
     for iColor = 1:length(cell_Color)
         if length(cell_Color{iColor})==1
-            parms.Color(iColor,:) = rem(floor((strfind('kbgcrmyw', cell_Color{iColor}) - 1) * [0.25 0.5 1]), 2);
+            parms.Color(iColor,:) = color_name2rgb(cell_Color{iColor}); % 2014-01-27            
         else % set as default b/c can't interperet Color-str
             parms.Color(iColor,:) = defaults.Color;
         end
             
     end
 end
+colorm
 
 %  Make the Color list the same length as the number of bars
 parms.Color=repmat(parms.Color,ceil(num_bars/size(parms.Color,1)),1);

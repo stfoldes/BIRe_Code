@@ -16,25 +16,27 @@ classdef FeatureParms_Class
     properties
         
         % Method Info
-        feature_method = char([]);
-        order = double(-1);
-        nfft = double(-1);
+        feature_method =                char([]);
+        order =                         double(-1);
+        nfft =                          double(-1);
         
         % Feature Info
-        ideal_freqs = double(-1); % zero is valid
-        actual_freqs = double(-1);
-        freq_bins = double(-1);
-        feature_resolution = double(-1);
+        ideal_freqs =                   double(-1); % zero is valid
+        actual_freqs =                  double(-1);
+        freq_bins =                     double(-1);
+        feature_resolution =            double(-1);
         
         % Timing Info
-        sample_rate = double(-1);
-        window_lengthS = double(-1);
-        actual_window_lengthS = double(-1);
-        window_length = double(-1);
-        feature_update_rateS = double(-1);
-        actual_feature_update_rateS = double(-1);
-        feature_update_rate = double(-1);
-        timeS_to_feature_sample = double(-1);
+        sample_rate =                   double(-1);
+        window_lengthS =                double(-1);
+        window_length =                 double(-1);
+        actual_window_lengthS =         double(-1);
+        actual_window_length =          double(-1);
+        feature_update_rateS =          double(-1);
+        feature_update_rate =           double(-1);
+        actual_feature_update_rateS =   double(-1);
+        actual_feature_update_rate =    double(-1);
+        timeS_to_feature_sample =       double(-1);
         
     end
     
@@ -42,10 +44,10 @@ classdef FeatureParms_Class
     properties (Hidden)
         
         % FOR MEM
-        MEM_firstBinCenter = double(-1);
-        MEM_lastBinCenter = double(-1);
-        MEM_NumOfEvaluation = double(-1);
-        MEM_Trend = double(-1);
+        MEM_firstBinCenter =            double(-1);
+        MEM_lastBinCenter =             double(-1);
+        MEM_NumOfEvaluation =           double(-1);
+        MEM_Trend =                     double(-1);
     end
     
 %%    

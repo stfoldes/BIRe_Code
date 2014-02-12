@@ -1,0 +1,12 @@
+function [coord ]
+
+
+% From panel_coordinates.m
+set(Brain.h, 'Pointer', 'cross');
+[~, scsLoc, selected_vertex]  = select3d(get(Brain.h,'Children'));
+
+% get MRI coordinates from file
+MRIFile =   BST_Load_File(Extract,'T1');
+scsLoc =    cursor_info.Position'; % subject coordiant 'system'
+mriLoc =    cs_scs2mri(MRIFile, scsLoc * 1000)
+% mniLoc =    cs_mri2mni(MRIFile, mriLoc); % Needs to be in MNI space
