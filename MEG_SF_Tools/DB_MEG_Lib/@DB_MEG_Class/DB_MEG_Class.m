@@ -14,6 +14,7 @@
 % 2013-08-13 Foldes: Started adding methods, Plot_BadChans
 % 2013-08-22 Foldes: datatype_ moved to PreProc.
 % 2013-10-04 Foldes: file_base_name replaced w/ entry_id
+% 2014-02-15 Foldes: Added methods here, that's all
 
 classdef DB_MEG_Class < DB_Class
     properties
@@ -54,14 +55,22 @@ classdef DB_MEG_Class < DB_Class
         %function obj=DB_MEG_Class
         % COntrsuctor to includ DEF_MEG_paths
         
+        file_full_path = file(obj,file_type,location_name);
         
+        % Calculates the events for a given event type
+        Events = Calc_Event_Markers(obj,event_name,TimeVecs,overwrite_flag);
+        % Add entries into a database by selecting files
+        obj = Add_Entries_by_GUI(obj,varargin);
+        % Used to automatically populate the "Extract" structure for loading data.
+        Extract=Prep_Extract(obj,Extract);
         % Head plots of bad channels
         bad_entry_list_out = Plot_BadChans(obj,varargin);
 
 %         % Download Data from server (unless it exists locally AND isn't fresh)
 %         Download_Data(obj,local_path,server_path,file_name_ending,force_transfer_flag)
 %         
-        
+         obj = MEG_DataTypeCheck(obj);
+       
         
         % CONSTRUCTOR
         %         function obj = Metadata(x)

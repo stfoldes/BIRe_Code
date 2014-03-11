@@ -2,18 +2,17 @@
 
 % Input files
 sFiles = {...
-    'Subject01_copy/@rawdbi05s01r05_tsss/data_0raw_dbi05s01r05_tsss.mat'};
-RawFiles = {...
-    '/home/foldes/Data/MEG/DBI05/S01/events_4BSTfromMatlab_dbi05s01r05_tsss_trans.mat'};
+    'Group_analysis/Attempt_Grasp_RT/results_wMNE_MEG_GRAD_MEG_MAG_KERNEL_140218_1510_NC01.mat'};
 
 % Start a new report
 bst_report('Start', sFiles);
 
-% Process: Events: Import from file
+% Process: Run Matlab command
 sFiles = bst_process(...
-    'CallProcess', 'process_evt_import', ...
+    'CallProcess', 'process_matlab_eval', ...
     sFiles, [], ...
-    'evtfile', {RawFiles{1}, 'BST'});
+    'matlab', ['% Available variables: Data, TimeVector' 10 '' 10 'Data = Data;' 10 ''], ...
+    'overwrite', 0);
 
 % Save and display report
 ReportFile = bst_report('Save', sFiles);

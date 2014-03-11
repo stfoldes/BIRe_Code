@@ -8,26 +8,17 @@
 clear
 
 BST_Info =                  BST_Info_Class;
-BST_Info.subject =          'DBI05'; % BST_Info.List('subjects')
+BST_Info.subject =          'NC01'; % BST_Info.List('subjects')
+BST_Info.condition =        'Attempt_Grasp_RT'; % name of stimulus
+
 BST_Info.group_or_ind =     'individual'; % 'group'
-BST_Info.condition =        'EMG_auto'; % name of stimulus
 BST_Info.inverse_method =   'wMNE'; % 'dSPM' % The name of the method used
 
-%% Turn BST-Surface into BrainSurface Underlay
-
-[SurfaceFile,SurfaceFile_name] = BST_Info.Load_File('surface');
-
-% Make BrainSurface Object
-Brain =                 BrainSurface_Class;
-Brain =                 copy_fields(SurfaceFile,Brain); % just pass the whole thing
-Brain.underlay_file =   SurfaceFile_name;
-
-Brain = Brain.Plot_Underlay;
 
 %% Get avg sensor data from BST-Avg file
 AvgFile =           BST_Info.Load_File('avg');
 
-target_timeS =      0.042;
+target_timeS =      .160;
 % index/sample closest to desired time in seconds
 target_time =       find_closest_in_list_idx(target_timeS,AvgFile.Time);
 % Sensor data for the given time
@@ -39,16 +30,38 @@ InverseFile =       BST_Info.Load_File('inverse');
 % Sources = Inverse * Sensors
 SourceData =        InverseFile.ImagingKernel * SensorData(InverseFile.GoodChannel,:);
 
-%% Plot Overlay
+%% Now we have a new sources to plot
 
-clear NewOverlay
-NewOverlay.Values =     SourceData;
-Brain = Brain.Plot_Overlay(NewOverlay,'Amplitude',0.7,'Colormap','jet');
+% make discrete for now
+%SourceData = SourceData>quantile(SourceData,0.75);
 
-%% Validate verticies (maybe MNI)
+% Pop up that inverse surface
+% Open surface plot W/ Overlay
+hFig =  view_surface_data([], BST_Info.OverlayFile_str);
+
+NewOverlay.Values = SourceData;
+% NewOverlay.hFig =   hFig;
+% NewOverlay.hPatch = TessInfo.hPatch; % <-- put this in the plot
+
+BST_Plot_Overlay(hFig,NewOverlay,'Amplitude',0.5);
 
 
+%% QUESTIONS
+%{
+If i mess w/ just the data will it be easy to 'mess' back up, like by moving the time?
+Would it be better to overwrite the avg file like was doing before?
 
+%}
+
+
+% 
+% %% Plot Overlay
+% 
+% clear NewOverlay
+% NewOverlay.Values =     SourceData;
+% Brain = Brain.Plot_Overlay(NewOverlay,'Amplitude',0.5,'Colormap','jet');
+% 
+% %% Validate verticies (maybe MNI)
 
 
 

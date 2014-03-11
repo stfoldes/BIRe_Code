@@ -12,7 +12,7 @@ bash
 # --------------------------
 
 # EXAMPLE: /home/foldes/Data/subjects/NC07/Initial/ => ${SUBJECTS_DIR}/${SUBJECT_ID}/${SESSION_TYPE}/
-export SUBJECT_ID=DBI01
+export SUBJECT_ID=NC12
 export SESSION_TYPE=''
 export SUBJECTS_DIR=/home/foldes/Data/subjects
 
@@ -40,5 +40,4 @@ suma -spec ${SUBJECT_PATH}/Freesurfer_Reconstruction/SUMA/${SUBJECT_ID}_both.spe
 
 # ---NOTES---
 # b, F6
-# r supposed to record
 
