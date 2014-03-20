@@ -12,9 +12,10 @@ bash
 # --------------------------
 
 # EXAMPLE: /home/foldes/Data/subjects/NC07/Initial/ => ${SUBJECTS_DIR}/${SUBJECT_ID}/${SESSION_TYPE}/
-export SUBJECT_ID=DBI01
+export SUBJECT_ID=NC12
 export SESSION_TYPE=''
-export SUBJECTS_DIR=/home/foldes/Data/subjects
+export SUBJECTS_DIR=/Users/hrnel/Data/
+# export SUBJECTS_DIR=/home/foldes/Data/subjects
 
 
 # ---------------

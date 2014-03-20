@@ -20,10 +20,10 @@ clc
 
 %% Processing Flags
 
-    Flags.convert =     1; % Step 1: Converts Raw to DICOM and NIFTI
-    Flags.FS =          0; % Step 2: Freesurfer reconstruction. REQUIRES: convert
+    Flags.convert =     0; % Step 1: Converts Raw to DICOM and NIFTI
+    Flags.FS =          1; % Step 2: Freesurfer reconstruction. REQUIRES: convert
     Flags.SPM =         1; % Step 3: fMRI analysis with SPM job. REQUIRES: convert, FS (needs a T1)
-    Flags.SPM2SUMA =    0; % Step 4: Convert SPM files to SUMA files. REQUIRES: FS, SPM
+    Flags.SPM2SUMA =    1; % Step 4: Convert SPM files to SUMA files. REQUIRES: FS, SPM
 
 %% PARAMETERS
 
@@ -32,7 +32,7 @@ clc
     % MRI_Info can be automatically generated (if left out or left empty).
     % See MRI_Info_Class.m
 
-    MRI_Info.subject_id =           'NC_test2'; % used in designs
+    MRI_Info.subject_id =           'NC12'; % used in designs
     MRI_Info.spm_job =              'SPM_Batch_Individual_Block_Design.m'; % full path or must be in Matlab path
     MRI_Info.epi_run_list =         'all';
 
@@ -44,7 +44,7 @@ clc
 %% Generic Setup
 
     % Base Path Design
-    MRI_Info.study_path_design =    'C:\Data\[subject_id]\'; % can't be relative path (spm_existfile fail)
+    MRI_Info.study_path_design =    '\Users\hrnel\Data\[subject_id]\fMRI\Initial\'; % can't be relative path (spm_existfile fail)
     % 'C:\Data\[subject_id]\fMRI\';
 
     % Relative Path Designs
