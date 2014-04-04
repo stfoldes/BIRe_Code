@@ -166,7 +166,7 @@ for ientry = 1:length(CRX_meta)
     
     if ~isempty(entry_idx_list)
         % .run_group = CRX_meda(entry_idx_list).entry_id;
-        current_entry.run_group = struct_field2cell(CRX_meta(entry_idx_list),'entry_id');
+        current_entry.run_group = {CRX_meta(entry_idx_list).entry_id};% 2014-03-25
     end
     
     CRX_meta = CRX_meta.update_entry(current_entry);
@@ -182,7 +182,7 @@ subject_list = DB_lookup_unique_entries(CRX_meta,'subject');
 
 for isubject = 1:length(subject_list)
     
-    session_list_cell = struct_field2cell(CRX_meta.get_entry('subject',subject_list{isubject}),'session');
+    session_list_cell = {CRX_meta.get_entry('subject',subject_list{isubject}).session};% 2014-03-25
     session_list =      (unique(session_list_cell));
     
     
@@ -405,7 +405,7 @@ toc
 
 subject_list = DB_lookup_unique_entries(Results,'subject');
 for isubject = 1:length(subject_list)
-    session_list_cell = struct_field2cell(Results.get_entry('subject',subject_list{isubject}),'session');
+    session_list_cell = {Results.get_entry('subject',subject_list{isubject}).session};% 2014-03-25
     session_list =      (unique(session_list_cell));
     
     disp([subject_list{isubject} ' ' session_list])

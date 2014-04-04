@@ -132,8 +132,8 @@ if ~strcmp(server_file_path,original_file_path) % don't save to server if server
     end
     if save_to_server_flag
         try
+            disp(['--> Moving to the Server [' original_file_name ']'])
             copyfile(original_file,[server_file_path filesep original_file_name]);
-            disp(['--> Moved to the Server [' original_file_name ']'])
         catch
             warning(['-X-> FAILED Move to the Server - Move Manually to Server [' original_file_name ']'])
         end

@@ -23,6 +23,7 @@ function MRI_Info = fMRI_ConvertMRRCdata(MRI_Info,varargin)
 % 2013-02-09 Foldes: ***VERSION 1.0-Maxwell***
 % 2014-01-01 Foldes: MAJOR update w/ object, options etc.
 % 2014-01-07 Foldes: MAJOR Cleaned up and now use epi_path
+% 2014-04-03 Foldes: Prep_Paths in obj
 
 %% INITIALIZE
 parms.save_NIFTI = 1;
@@ -30,9 +31,10 @@ parms.save_DICOM = 0; % delete DICOMs by default
 parms.DICOM_only = 0;
 parms = varargin_extraction(parms,varargin);
 
-% Sets paths if haven't already
-if ~exist('MRI_Info');MRI_Info=[];end
-MRI_Info=fMRI_Prep_Paths(MRI_Info);
+% Turn _design into strings
+MRI_Info = design2str_struct(MRI_Info);
+% Automatically sets some standard paths if haven't already
+MRI_Info=Prep_Paths(MRI_Info);
 
 % path to raw data
 if isempty(MRI_Info.raw_data_path)

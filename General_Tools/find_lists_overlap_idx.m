@@ -26,17 +26,17 @@ overlap_idx = []; % if no matches, you still need an output
 
 if isnumeric(reference_list)
     overlap_per_item=zeros(length(reference_list),1);
-    for iitem = 1:length(reference_list)
-        overlap_per_item(iitem)=max(list4lookup==reference_list(iitem));
+    for iref = 1:length(reference_list)
+        overlap_per_item(iref)=max(list4lookup==reference_list(iref));
     end
     overlap_idx=find(overlap_per_item==1);
     
 elseif iscell(reference_list)
     if iscell(list4lookup)
-        for iitem = 1:length(list4lookup)
-            match_flag = strmatch(list4lookup{iitem},reference_list, 'exact');
+        for ilookup = 1:length(list4lookup)
+            match_flag = strmatch(list4lookup{ilookup},reference_list, 'exact');
             if ~isempty(match_flag) % 2014-03-04 Sometimes you can have empty
-                overlap_idx(iitem)=match_flag;
+                overlap_idx(ilookup)=match_flag;
             end
         end
     else % input not a cell, so only one thing to look up

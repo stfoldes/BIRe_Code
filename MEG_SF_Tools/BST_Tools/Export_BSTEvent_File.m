@@ -1,4 +1,4 @@
-function events = Export_BSTEvent_File(event_timeS,sample_rate,event_file2write,varargin)
+function [file2write_full_name, events] = Export_BSTEvent_File(event_timeS,sample_rate,event_file2write,varargin)
 % Writes events.m files for Brainstorm. Used for only ONE event type at a time
 %
 % INPUT

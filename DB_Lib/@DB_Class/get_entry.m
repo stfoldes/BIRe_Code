@@ -30,6 +30,7 @@ function [entries,entry_idx] = get_entry(DB,varargin)
 % 2013-09-03 Foldes: Now can use a remove_criteria
 % 2013-10-03 Foldes: Renamed from Database_Get_Entry, Metadata-->DB
 
+entry_idx = [];
 
 %% 1 Input to function (i.e. DB only) = let the user pick
 if nargin==1

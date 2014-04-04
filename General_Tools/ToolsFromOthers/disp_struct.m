@@ -3,7 +3,10 @@ function disp_struct(A)
 % Stolen from BST with updates
 %
 % 2014-02-07 Foldes
-view_text( str_format(A), inputname(1));
+% UPDATES:
+% 2014-04-01 Foldes: Small
+
+view_text( [inputname(1) str_format(A)], inputname(1));
 
 end
 

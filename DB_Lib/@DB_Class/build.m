@@ -37,6 +37,7 @@ end
 MY_PATHS.db_full_name=[MY_PATHS.db_base filesep MY_PATHS.project '_DB.txt'];
 
 %% check existance
+disp(['Loading ' MY_PATHS.db_full_name '...'])
 if exist(MY_PATHS.db_full_name)~=2 % no file exists
     
     % try to start manual picking at a good spot

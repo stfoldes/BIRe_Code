@@ -12,7 +12,7 @@ if isempty(StudyInfo)
 end
 
 % Get all the data files from conditions
-all_data_files = struct_field2cell(StudyInfo.Data,'FileName');
+all_data_files = {StudyInfo.Data.FileName}; % 2014-03-25
 
 % Get the trial numbers that are avalible
 trials_avalible = [];

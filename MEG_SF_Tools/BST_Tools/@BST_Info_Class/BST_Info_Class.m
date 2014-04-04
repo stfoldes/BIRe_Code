@@ -3,6 +3,7 @@
 % 2014-02-15 Foldes
 % UPDATES:
 % 2014-02-17 Foldes: stimulus
+% 2014-03-25 Foldes: ProtocolName
 
 
 classdef BST_Info_Class
@@ -26,15 +27,21 @@ classdef BST_Info_Class
         % ===CONSTRUCTOR===
         % Makes sure BST is open
         % Fills in protocol information
-        function obj = BST_Info_Class()
+        % ProtocolName can be missing or empty and will use currently open protocol
+        function obj = BST_Info_Class(ProtocolName)
             % Must start BST first
             if brainstorm('status') == 0 % unless its already open
                 brainstorm;
                 error('BST must be open and pointed to the correct protocol (try again)')
             end
-            
+                        
             % Basic info from BST
-            ProtocolInfo =      bst_get('ProtocolInfo');
+            if exist('ProtocolName') && ~isempty(ProtocolName)
+                iProtocol =  bst_get('Protocol',ProtocolName);
+                bst_set('iProtocol',iProtocol);
+            end
+            ProtocolInfo = bst_get('ProtocolInfo');
+            bst_set('ProtocolInfo', ProtocolInfo);
             obj.protocol =  ProtocolInfo.Comment;
             
             obj.protocol_data_path = ProtocolInfo.STUDIES;

@@ -1,9 +1,9 @@
 function [moddepth] = Calc_ModDepth(feature_data_move,feature_data_rest,method_str)
 % Relates move data to rest data using different methods (DEFAULT: t-stat)
 % method_str:
-%     'tstat' [DEFAULT]
-%     'zstat'
-%     'percent'
+%     'tstat','T' [DEFAULT]
+%     'zstat','Z'
+%     'percent','%'
 % feature_data_*: trial x electrode x frequency
 %
 % SEE: Calc_ModDepth_Combine_by_Location.m

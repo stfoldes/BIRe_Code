@@ -6,6 +6,7 @@
 % 2014-01-01 Foldes
 % UPDATES:
 % 2014-01-06 Foldes: Added ExpDef for SPM variables
+% 2014-04-03 Foldes: Add prep paths, defaults added
 
 classdef MRI_Info_Class
     
@@ -17,13 +18,13 @@ classdef MRI_Info_Class
         subject_id =            char([]); % Only needed for Freesurfer and UNIX things and designs
         raw_data_path =         char([]); % use design
         
-        % FS and SUMA scripts
+        % FS and SUMA scripts (file names are sufficent if in the Matlab path)
         FS_script =             char([]);
         SPM2SUMA_script =       char([]);
         
         % SPM Basics
         T1_file =               char([]); % use design
-        epi_run_list =          char([]);
+        epi_run_list =          'all';
         epi_path =              char([]); % path to epi folder. use design
         epi_full_file_names =   char([]); % Used in spm job
         
@@ -33,7 +34,7 @@ classdef MRI_Info_Class
         ExpDef_event_onsets =   []; % vector of when conditions/events happen, in scan # (hardcoded, but can be changed)
         ExpDef_event_duration = []; % num scans for the event/condition to happen
         
-        % Mis
+        % Misc
         output_path =           char([]);
         output_prefix =         char([]);
         
@@ -42,21 +43,25 @@ classdef MRI_Info_Class
     properties (Hidden)
         spm_path =              char([]);
         T1_auto_find =          0;
+        FS_script_path =        char([]); % actual path to the script
+        SPM2SUMA_script_path =  char([]);
 
-        % Designs (SEE: str_from_design.m, struct_auto_translate.m)        
+        % Relative Path Designs (SEE: str_from_design.m, struct_auto_translate.m)        
         study_path_design =     char([]);
-        raw_data_path_design =  char([]);
-        epi_path_design =       char([]);
-        T1_file_design =        char([]);
-        
-        output_path_design =    char([]);
-        output_prefix_design =  char([]);
+        T1_file_design =       '[study_path]/Freesurfer_Reconstruction/SUMA/T1.nii'; % Where is the T1? Blank for GUI
+        epi_path_design =      '[study_path]/NIFTI/'; % Where are the EPI folders? Blank for GUI
+        raw_data_path_design = '[study_path]/Raw_Data/'; % Where are the raw folders? Blank for GUI
+
+        % Where to move analyzed files
+        output_path_design =   '[study_path]/FunctionalData/'; % Where should the results go?
+        output_prefix_design = '[subject_id]_'; % What new prefix should the results have?
 
     end
     
     methods
-        % can add prep
         
+        obj = Prep_Paths(obj);
+                
     end
 end    
     

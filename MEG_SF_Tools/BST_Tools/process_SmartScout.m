@@ -168,7 +168,7 @@ function [ScoutInfo,AtlasFile] = Compute(sInput, scout_method, varargin)
 %
 %     %---OVERLAP---
 %     MaskAtlas =           Atlas name for scouts to mask e.g. 'Desikan-Killiany'; ONLY works for
-%                           one atlas rigth now (you can  manually add scouts to a 'User scouts')
+%                           one atlas right now (you can  manually add scouts to a 'User scouts')
 %     MaskScouts =          Scout list separated by '|' e.g. 'postcentral L|precentral L|precentral R';
 %
 %     % ---DATA-RELATED---
@@ -206,6 +206,7 @@ function [ScoutInfo,AtlasFile] = Compute(sInput, scout_method, varargin)
 % 2014-02-25 Foldes
 % UPDATES:
 % 2014-03-03 Foldes: Fully integrated into BST as process
+% 2014-03-25 Foldes: find(strcmpi({
 
 %% VARARGIN DEFAULTS
 
@@ -285,7 +286,7 @@ TessInfo = getappdata(hFig,'Surface');
 % Get surface
 sSurf = bst_memory('GetSurface', TessInfo.SurfaceFile);
 
-%% Get info for the new scout, including naming and parameters
+% ---Get info for the new scout, including naming and parameters---
 
 % parse DataSource name for info (this is not great, maybe look at GlobalData +++IMPROVE+++)
 datasource_name = strrep(TessInfo.DataSource.FileName,'link|','');
@@ -300,7 +301,7 @@ if isempty(parms.NameStr)
     parms.NameStr = str_from_design(NamingInfo,parms.NameDesign);
 end
 
-%% Build new scouts with subfunctions
+%% Build new scouts with subfunctions (populate sScout)
 
 eval(['[sScout, ScoutInfo] = ' scout_method '(TessInfo,sSurf,parms);']);
 
@@ -317,7 +318,7 @@ if ScoutInfo.parms.Conservative == false % (defined in scout_method)
 end
 
 % to be safe, make sure .Vertices are [1xnVertices] otherwise BST will kick out error in
-% panel_scout>UpdateScoutProperties (line 759) +++BST-BUG+++
+% panel_scout>UpdateScosSurf.Atlas(iAtlas)utProperties (line 759) +++BST-BUG+++
 if size(sScout.Vertices,1)>1
     sScout.Vertices = sScout.Vertices';
 end
@@ -357,7 +358,7 @@ sAtlas = db_template('Atlas');
 % Go desired atlas ('SmartScout_PROTOCOL')
 ProtocolInfo = bst_get('ProtocolInfo');
 sAtlas.Name = ['SmartScout_' ProtocolInfo.Comment]; % Name of Atlas; Could use 'User scouts';
-iAtlas = find_lists_overlap_idx(struct_field2cell(sSurf.Atlas,'Name'),sAtlas.Name);
+iAtlas = find(strcmpi({sSurf.Atlas.Name},sAtlas.Name)); % 2014-03-25
 if ~isempty(iAtlas) % atlas already exists, go to it
     panel_scout('SetCurrentAtlas',iAtlas);
 else
@@ -374,7 +375,7 @@ end
 new_scout_flag = true; % assume new
 if ScoutInfo.parms.OVERWRITE
     if length(sSurf.Atlas) >= iAtlas % atlas exist, look for a scout match
-        iScout = find_lists_overlap_idx(struct_field2cell(sSurf.Atlas(iAtlas).Scouts,'Label'),sScout.Label);
+        iScout = find(strcmpi({sSurf.Atlas(iAtlas).Scouts.Label},sScout.Label));% 2014-03-25
         if ~isempty(iScout) % if there is a match, overwrite it
             iScout = panel_scout('SetScouts',[], iScout, sScout);
             new_scout_flag = false;
@@ -468,7 +469,7 @@ ScoutInfo.parms.Conservative =  parms.Conservative; % for saving
 %% CALCULATE SCOUT VERTICES
 
 % Limit data to only vert in the MaskScouts
-[ScoutInfo.Vertices_ROI,ROI_Mask] = Limit_Vertices_with_Scouts([],sSurf,parms.MaskAtlas,parms.MaskScouts);
+[ScoutInfo.ROI_Vertices,ROI_Mask] = Limit_Vertices_with_Scouts([],sSurf,parms.MaskAtlas,parms.MaskScouts);
 Data_from_ROI = TessInfo.Data .* ROI_Mask;
 
 % Define data limits (this is usually govenered by other funtions that call 'Threshold', like 'View')
@@ -549,7 +550,7 @@ ScoutInfo.parms.OVERWRITE =     true; % Do you want the scout to be overwriten w
 ScoutInfo.parms.Conservative =  parms.Conservative; % pass (probably should be true)
 
 % Limit data to only vert in the MaskScouts
-[ScoutInfo.Vertices_ROI,ROI_Mask] = Limit_Vertices_with_Scouts([],sSurf,parms.MaskAtlas,parms.MaskScouts);
+[ScoutInfo.ROI_Vertices,ROI_Mask] = Limit_Vertices_with_Scouts([],sSurf,parms.MaskAtlas,parms.MaskScouts);
 Data_from_ROI =TessInfo.Data .* ROI_Mask;
 
 parms.DataThresholdValue =  max(Data_from_ROI);
@@ -591,7 +592,7 @@ end
 
 % ---Load existing Scouts---
 % Get desired atlas number (for 'SmartScout_PROTOCOL')
-iAtlas = find_lists_overlap_idx(struct_field2cell(sSurf.Atlas,'Name'),AtlasName);
+iAtlas = find(strcmpi({sSurf.Atlas.Name},AtlasName));% 2014-03-25
 % Pull the existing scouts (you will add to existing)
 if ~isempty(iAtlas)
     Scouts = sSurf.Atlas(iAtlas).Scouts;
@@ -636,7 +637,7 @@ function [AtlasFile] = Save_Atlas_and_ScoutInfo(AtlasName,ScoutInfo_in,FLAG_SAVE
 global GlobalData % Global is updated automatically!
 
 % Get current atlas for saving
-iAtlas = find_lists_overlap_idx(struct_field2cell(GlobalData.Surface.Atlas,'Name'),AtlasName);
+iAtlas = find(strcmpi({GlobalData.Surface.Atlas.Name},AtlasName));% 2014-03-25
 sAtlas = GlobalData.Surface.Atlas(iAtlas);
 sAtlas.TessNbVertices = length(GlobalData.Surface.Vertices);
 
@@ -663,9 +664,8 @@ if exist(AtlasFile,'file') == 2 % file exists?
     AtlasFile_existing = load(AtlasFile);
     
     % File-ScoutInfo that match current Scouts (using ScoutID)
-    scouts_from_file_idx = find_lists_overlap_idx(struct_field2cell(AtlasFile_existing.ScoutInfo,'ScoutID'),...
+     scouts_from_file_idx = find_lists_overlap_idx(struct_field2cell(AtlasFile_existing.ScoutInfo,'ScoutID'),...
         MakeScoutID(sAtlas.Scouts));
-    
     if ~isempty(scouts_from_file_idx) % some file-info fit the current scouts, add those to list
         % Add valid ScoutInfo to the list of those to save
         for iscout = 1:length(scouts_from_file_idx)
@@ -683,8 +683,8 @@ end
 % go thru all new scoutinfo and see if it should overwrite an old one or just be added
 for iinfo = 1:length(ScoutInfo_in)
     % Which of the info-from-file need to be overwritten w/ the current new-scoutinfo
-    info2overwrite_idx = find_lists_overlap_idx(struct_field2cell(ScoutInfo,'ScoutID'),...
-        ScoutInfo_in(iinfo).ScoutID);
+    info2overwrite_idx = find(strcmpi({ScoutInfo.ScoutID},...
+        ScoutInfo_in(iinfo).ScoutID));% 2014-03-25
     
     if ~isempty(info2overwrite_idx) % yes, overwrite something
         if length(info2overwrite_idx) > 1
@@ -751,8 +751,8 @@ function [Vertices_idx, Vertices_mask] = Limit_Vertices_with_Scouts(OrgVertices,
 %   MaskScouts = 'postcentral L'|precentral L|precentral R';
 %
 % Might be fun to use:
-%   iAtlas = find_lists_overlap_idx(struct_field2cell(sSurf.Atlas,'Name'),Projection.Atlas);
-%   iScout = find_lists_overlap_idx(struct_field2cell(sSurf.Atlas(iAtlas).Scouts,'Label'),Projection.Scout);
+%   iAtlas = find(strcmpi({sSurf.Atlas.Name},Projection.Atlas));% 2014-03-25
+%   iScout = find(strcmpi({sSurf.Atlas(iAtlas).Scouts.Label},Projection.Scout));% 2014-03-25
 %
 % BUGS:
 %   Some BST function require vertices to be [1 x nVertices], might need to flip after this (+++BST-BUG+++)
@@ -770,7 +770,7 @@ if mod(OrgVertices,1); error('Vertices are indices; they can not be values'); en
 
 if ~isempty(MaskAtlas) && ~isempty(MaskScouts)
     % which atlas is the user scouts? (this is easier than it looks)
-    iAtlas = find_lists_overlap_idx(struct_field2cell(sSurf.Atlas,'Name'),MaskAtlas);
+    iAtlas = find(strcmpi({sSurf.Atlas.Name},MaskAtlas));% 2014-03-25
     % load existing Scouts in User scouts atlas (you are going to add to the existing)
     if isempty(iAtlas)
         error(['Selected atlas ' MaskAtlas ' not found'])
@@ -787,7 +787,7 @@ if ~isempty(MaskAtlas) && ~isempty(MaskScouts)
     % which atlas is the user scouts? (this is easier than it looks)
     ROI_vertices = [];
     for iscout = 1:length(MaskScouts_list)
-        iScout = find_lists_overlap_idx(struct_field2cell(sSurf.Atlas(iAtlas).Scouts,'Label'),MaskScouts_list{iscout});
+        iScout = find(strcmpi({sSurf.Atlas(iAtlas).Scouts.Label},MaskScouts_list{iscout}));% 2014-03-25
         ROI_vertices = [ROI_vertices sSurf.Atlas(iAtlas).Scouts(iScout).Vertices];
     end
     % Scout is ONLY vertices in both lists
@@ -889,7 +889,7 @@ template = struct(...
     'Region',       'UU', ...      % 1st letter: Left/Right/Unknown,  2nd letter: Frontal/Parietal/Temporal/Occipital/Central/Unkown
     'Handles',      [], ...
     'parms',        [], ...
-    'Vertices_ROI', [], ...
+    'ROI_Vertices', [], ...
     'fig_name',     [], ...
     'scout_method', [], ...
     'subject',      [], ...
@@ -908,6 +908,105 @@ template = struct(...
     'CenterOfMass',     []);
 
 end
+
+%% ===Calc ScoutInfo===
+function current_ScoutInfo = Calc_ScoutInfo(current_ScoutInfo,Data,sSurf,ROI_Vertices)
+% Adds Data-driven stats to a ScoutInfo
+% Can add any stats here to be applied to any report/info
+%
+% current_ScoutInfo needs to have:
+%       .Vertices
+%
+%
+% process_SmartScout('Calc_ScoutInfo')
+% 2014-04-01 Foldes
+
+% ---Fill in missing info---
+if ~exist('current_ScoutInfo') || isempty(current_ScoutInfo)
+    % No scout info given, use the currently selected scout on the GUI
+    [sScouts, sSurf] = panel_scout('GetScouts',[]); % Selected Atlas
+    [~, iScout] =  panel_scout('GetSelectedScouts'); % Selected Scout
+    current_ScoutInfo = sScouts(iScout);
+    
+    % Data is what is shown on the figure
+    TessInfo = getappdata(gcf,'Surface');
+    Data = TessInfo.Data;
+    
+    ROI_Vertices = sScouts(iScout).Vertices;
+    Data = Data(ROI_Vertices); % Limit data to ROI
+    
+end
+if ~exist('sSurf') || isempty(sSurf) % no surface, then get current
+    [sScouts, sSurf] = panel_scout('GetScouts',[]);
+end
+if ~exist('Data')
+    Data = [];
+    % Or is already in the struct
+    if isfield(current_ScoutInfo,'Data')
+        Data = current_ScoutInfo.Data;
+    end
+end
+if ~exist('ROI_Vertices')
+    ROI_Vertices = [];
+    % Or is already in the struct
+    if isfield(current_ScoutInfo,'ROI_Vertices')
+        ROI_Vertices = current_ScoutInfo.ROI_Vertices;
+    end
+end
+% --------------------------
+
+% Basic info that will always be wanted
+current_ScoutInfo.surface =     sSurf.FileName;
+current_ScoutInfo.VerticesXYZ = sSurf.Vertices(current_ScoutInfo.Vertices,:); % actual xyz coordanates
+current_ScoutInfo.totalArea =   sum(sSurf.VertArea(current_ScoutInfo.Vertices)) * 100 * 100; % cm^2
+
+% Get the vertices for the MaskScout that may have been used (used for PrincipalProjection below)
+if ~isempty(ROI_Vertices)
+    ROI_VerticesXYZ = sSurf.Vertices(ROI_Vertices,:);
+else
+    ROI_VerticesXYZ = [];
+end   
+
+% only do these things if there is .Data
+if ~isempty(Data)
+    
+    current_ScoutInfo.DataMean =    mean(Data);
+    current_ScoutInfo.DataMedian =  median(Data);
+    
+    % Compute single point info (e.g. max)
+    % ---Max Info---
+    [~,max_idx] = max(Data);
+    current_ScoutInfo.Max = Vertex2Coord(current_ScoutInfo.Vertices(max_idx),...
+        current_ScoutInfo.VerticesXYZ(max_idx,:),sSurf.FileName);
+    current_ScoutInfo.Max.value =   Data(current_ScoutInfo.Vertices==current_ScoutInfo.Max.vertex); % value must be after Vertex2Coord or will be overwritten
+    % project the location onto the ROI space
+    current_ScoutInfo.Max.prinprj = ROIPrincipalProjection((current_ScoutInfo.Max.scsLoc/1000),ROI_VerticesXYZ) * 1000; % turn to mm
+    
+    if length(current_ScoutInfo.Vertices)>1 % Doesn't work for single vertex
+        % ---Centroid Info---
+        centroid_value =    mean(current_ScoutInfo.VerticesXYZ);
+        centroid_idx =      knnsearch(current_ScoutInfo.VerticesXYZ,centroid_value); % NOTE: uses stats tool box (easy to replace)
+        current_ScoutInfo.Centroid =  Vertex2Coord(current_ScoutInfo.Vertices(centroid_idx),...
+            current_ScoutInfo.VerticesXYZ(centroid_idx,:),sSurf.FileName);
+        current_ScoutInfo.Centroid.value = Data(current_ScoutInfo.Vertices==current_ScoutInfo.Centroid.vertex);
+        % project the location onto the ROI space
+        current_ScoutInfo.Centroid.prinprj = ROIPrincipalProjection((current_ScoutInfo.Centroid.scsLoc/1000),ROI_VerticesXYZ) * 1000; % turn to mm
+        
+        % ---CenterOfMass Info---
+        % data-weighted centroid
+        data_norm = ( Data - min(Data) )./abs(max(Data) - min(Data));
+        CenterOfMass_value =    mean(current_ScoutInfo.VerticesXYZ.*[data_norm,data_norm,data_norm]);
+        CenterOfMass_idx =      knnsearch(current_ScoutInfo.VerticesXYZ,CenterOfMass_value); % NOTE: uses stats tool box (easy to replace)
+        current_ScoutInfo.CenterOfMass = Vertex2Coord(current_ScoutInfo.Vertices(CenterOfMass_idx),...
+            current_ScoutInfo.VerticesXYZ(CenterOfMass_idx,:),sSurf.FileName);
+        current_ScoutInfo.CenterOfMass.value = Data(current_ScoutInfo.Vertices==current_ScoutInfo.CenterOfMass.vertex);
+        % project the location onto the ROI space
+        current_ScoutInfo.CenterOfMass.prinprj = ROIPrincipalProjection((current_ScoutInfo.CenterOfMass.scsLoc/1000),ROI_VerticesXYZ) * 1000; % turn to mm
+    end
+end % Is there data?
+
+end % Calc ScoutInfo
+
 
 %% ==================================================================================
 %% ===BONUS FEATURES=================================================================
@@ -968,7 +1067,7 @@ for iscout = 1:length(sAtlas.Scouts)
     clear current_ScoutInfo
     % For each scout, find a match with ScoutInfo (using ScoutID)
     current_ScoutID = MakeScoutID(sAtlas.Scouts(iscout));
-    iscoutinfo = find(ismember(struct_field2cell(sAtlas.ScoutInfo,'ScoutID'),current_ScoutID));
+    iscoutinfo = find(ismember({sAtlas.ScoutInfo.ScoutID},current_ScoutID));% 2014-03-25
     
     % Load existing ScoutInfo OR start a new entry
     if isempty(iscoutinfo) % No existing ScoutInfo, so add a new ScoutInfo
@@ -984,14 +1083,7 @@ for iscout = 1:length(sAtlas.Scouts)
     end % load previous ScoutInfo or make new
     
     % Make sure Scout is copied to ScoutInfo
-    current_ScoutInfo = copy_fields(sAtlas.Scouts(iscout),current_ScoutInfo);
-    % Basic info that will always be wanted
-    current_ScoutInfo.surface =     sSurf.FileName;
-    current_ScoutInfo.VerticesXYZ = sSurf.Vertices(current_ScoutInfo.Vertices,:); % actual xyz coordanates
-    current_ScoutInfo.totalArea =   sum(sSurf.VertArea(current_ScoutInfo.Vertices)) * 100 * 100; % cm^2
-    
-    %% Data-related info
-    
+    current_ScoutInfo = copy_fields(sAtlas.Scouts(iscout),current_ScoutInfo);    
     % You have defined NewData at the input, set it as 'data'
     if ~isempty(parms.NewData)
         % force the data to be the function input's NewData
@@ -1000,52 +1092,7 @@ for iscout = 1:length(sAtlas.Scouts)
         parms.FLAG_SAVENEW = true; % dont overwrite old scouts, you now have new data
     end
     
-    % only do these things if there is .Data
-    if isfield(current_ScoutInfo,'Data') && ~isempty(current_ScoutInfo.Data)
-        
-        current_ScoutInfo.DataMean =    mean(current_ScoutInfo.Data);
-        current_ScoutInfo.DataMedian =  median(current_ScoutInfo.Data);
-        
-        % Get the vertices for the MaskScout that may have been used
-        % (used for PrincipalProjection below)
-        if ~isempty(current_ScoutInfo.Vertices_ROI)
-            ROI_VerticesXYZ = sSurf.Vertices(current_ScoutInfo.Vertices_ROI,:);
-        else
-            ROI_VerticesXYZ = [];
-        end
-        
-        %% Compute single point info (e.g. max)
-        % ---Max Info---
-        [~,max_idx] = max(current_ScoutInfo.Data);
-        current_ScoutInfo.Max = Vertex2Coord(current_ScoutInfo.Vertices(max_idx),...
-            current_ScoutInfo.VerticesXYZ(max_idx,:),current_ScoutInfo.surface);
-        current_ScoutInfo.Max.value =   current_ScoutInfo.Data(current_ScoutInfo.Vertices==current_ScoutInfo.Max.vertex); % value must be after Vertex2Coord or will be overwritten
-        % project the location onto the ROI space
-        current_ScoutInfo.Max.prinprj = ROIPrincipalProjection((current_ScoutInfo.Max.scsLoc/1000),ROI_VerticesXYZ) * 1000; % turn to mm
-        
-        if length(current_ScoutInfo.Vertices)>1 % Doesn't work for single vertex
-            % ---Centroid Info---
-            centroid_value =    mean(current_ScoutInfo.VerticesXYZ);
-            centroid_idx =      knnsearch(current_ScoutInfo.VerticesXYZ,centroid_value); % NOTE: uses stats tool box (easy to replace)
-            current_ScoutInfo.Centroid =  Vertex2Coord(current_ScoutInfo.Vertices(centroid_idx),...
-                current_ScoutInfo.VerticesXYZ(centroid_idx,:),current_ScoutInfo.surface);
-            current_ScoutInfo.Centroid.value = current_ScoutInfo.Data(current_ScoutInfo.Vertices==current_ScoutInfo.Centroid.vertex);
-            % project the location onto the ROI space
-            current_ScoutInfo.Centroid.prinprj = ROIPrincipalProjection((current_ScoutInfo.Centroid.scsLoc/1000),ROI_VerticesXYZ) * 1000; % turn to mm
-            
-            % ---CenterOfMass Info---
-            % data-weighted centroid
-            data_norm = ( current_ScoutInfo.Data - min(current_ScoutInfo.Data) )./abs(max(current_ScoutInfo.Data) - min(current_ScoutInfo.Data));
-            CenterOfMass_value =    mean(current_ScoutInfo.VerticesXYZ.*[data_norm,data_norm,data_norm]);
-            CenterOfMass_idx =      knnsearch(current_ScoutInfo.VerticesXYZ,CenterOfMass_value); % NOTE: uses stats tool box (easy to replace)
-            current_ScoutInfo.CenterOfMass = Vertex2Coord(current_ScoutInfo.Vertices(CenterOfMass_idx),...
-                current_ScoutInfo.VerticesXYZ(CenterOfMass_idx,:),current_ScoutInfo.surface);
-            current_ScoutInfo.CenterOfMass.value = current_ScoutInfo.Data(current_ScoutInfo.Vertices==current_ScoutInfo.CenterOfMass.vertex);
-            % project the location onto the ROI space
-            current_ScoutInfo.CenterOfMass.prinprj = ROIPrincipalProjection((current_ScoutInfo.CenterOfMass.scsLoc/1000),ROI_VerticesXYZ) * 1000; % turn to mm
-        end
-        
-    end % Is there data?
+    current_ScoutInfo = Calc_ScoutInfo(current_ScoutInfo,current_ScoutInfo.Data,sSurf,current_ScoutInfo.ROI_Vertices);
     
     %%  Write ScoutInfo back to it's structure
     sAtlas.ScoutInfo(iscoutinfo) = current_ScoutInfo;
@@ -1095,7 +1142,7 @@ if ~exist('AtlasName') || isempty(AtlasName) || ~exist('Scouts') || isempty(Scou
     [~, iAtlas] =  panel_scout('GetAtlas');
     
 else % Get scouts from function input
-    iAtlas = find_lists_overlap_idx(struct_field2cell(sSurf.Atlas,'Name'),AtlasName);
+    iAtlas = find(strcmpi({sSurf.Atlas.Name},AtlasName));% 2014-03-25
     % Pull the existing scouts (you will add to existing)
     if ~isempty(iAtlas)
         sScouts = sSurf.Atlas(iAtlas).Scouts;
@@ -1105,7 +1152,7 @@ else % Get scouts from function input
         while ~isempty(remain)
             iscout = iscout + 1;
             [Scouts_list{iscout} remain] = strtok(remain,'|');
-            iScout = find_lists_overlap_idx(struct_field2cell(sScouts,'Label'),Scouts_list{iscout});
+            iScout = find(strcmpi({sScouts.Label},Scouts_list{iscout}));% 2014-03-25
         end
     else
         error('Atlas does not exist')
@@ -1142,6 +1189,7 @@ end % MaskSelectedScouts
 function SelectedPoint = Vertex2Coord(vertex,vertexXYZ,SurfaceFile_name)
 % Finds the MRI, MNI, and SCS coordanates given vertex info and SurfaceFile_name
 % Generates SelectedPoint.XXX
+% SurfaceFile_name = sSurf.FileName
 %
 % EXAMPLE:
 %   [max_value,max_idx] =       max(ScoutInfo.Data);

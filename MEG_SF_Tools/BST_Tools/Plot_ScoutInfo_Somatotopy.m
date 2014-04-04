@@ -1,9 +1,9 @@
 function [max_separation_mm,Fig] = Plot_ScoutInfo_Somatotopy(ScoutInfo,stat_name,varargin)
-% Plot the points in ScoutInfo(:).(stat_name).scsLoc/prinproj on ScoutInfo(1).Vertices_ROI
+% Plot the points in ScoutInfo(:).(stat_name).scsLoc/prinproj on ScoutInfo(1).ROI_Vertices
 % Also outputs the maximum separation in the group (in mm)
 %
 % 'ScoutOrder': Organize ScoutInfo(ScoutOrder)
-% 'ScoutColors': Colors to use
+% 'ScoutColors': Colors to use (defaults to colors used in ScoutInfo)
 % 
 % EXAMPLE:
 %   ScoutInfo = process_SmartScout('Load_Scout_and_ScoutInfo');
@@ -13,7 +13,7 @@ function [max_separation_mm,Fig] = Plot_ScoutInfo_Somatotopy(ScoutInfo,stat_name
 %
 % 2014-03-06 Foldes
 % UPDATES:
-%
+% 2014-04-02 Foldes: Default color now read from ScoutInfo.Color
 
 %% Setup
 
@@ -23,7 +23,7 @@ if ~exist('ScoutInfo')
 end
 
 parms.ScoutOrder =  [1:length(ScoutInfo)];
-parms.ScoutColors = rand(length(ScoutInfo),3);
+parms.ScoutColors = [];
 
 parms = varargin_extraction(parms,varargin);
 
@@ -36,9 +36,16 @@ for iscout = 1:length(parms.ScoutOrder)
 end
 
 sSurf = bst_memory('GetSurface', ScoutInfo(1).surface);
-ROI_VertXYZ = sSurf.Vertices(ScoutInfo(1).Vertices_ROI,:)*1000;
+ROI_VertXYZ = sSurf.Vertices(ScoutInfo(1).ROI_Vertices,:)*1000;
+
 
 %% Plot
+if isempty(parms.ScoutColors)
+    for iscout = 1:length(ScoutInfo)
+        parms.ScoutColors(iscout,:) = ScoutInfo(iscout).Color;
+    end
+end
+
 
 hFig = figure; 
 subplot(2,1,1); hold all
@@ -50,7 +57,7 @@ for iscout = 1:size(scsLoc,1)
 end
 title(stat_name)
 box on
-axis square
+axis off
 
 subplot(2,1,2); hold all
 for iscout = 1:size(scsLoc,1)

@@ -21,13 +21,13 @@ function [Extract,fif_file] = Prep_Extract_MEG(Extract)
 %
 % 2014-01-23 Foldes
 % UPDATES:
-%
+% 2014-03-13 Foldes: temp --> temp__
 
 % can just put in file name
 if ~isstruct(Extract)
-    temp = Extract;
+    temp__ = Extract;
     clear Extract
-    Extract.full_file_name = temp;
+    Extract.full_file_name = temp__;
 end
 
 % GUI for file if not given

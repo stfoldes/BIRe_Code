@@ -1,5 +1,5 @@
 function [PipeInfo, sFiles_4debug] = Run(PipeInfo,varargin)
-% [PipeInfo, sFiles_4debug] = BST_Pipeline(PipeInfo,varargin); 'Import','PreSource','Source','PostSource'
+% [PipeInfo, sFiles_4debug] = BST_Pipeline(PipeInfo,varargin); 'Import','PreSource','Source','Project2MNI'
 %
 % Programatically runs BST Script/Pipelines
 % Parameters stored in PipeInfo (SEE: BST_Pipeline_Class)
@@ -12,7 +12,7 @@ function [PipeInfo, sFiles_4debug] = Run(PipeInfo,varargin)
 %                           Subject must be created and have a MRI imported (or the template brain)
 %           'PreSource':    Builds forward model (Head Model), Average trials
 %           'Source':       Calc noise cov, inverse
-%           'PostSource':   Project to MNI (for now)   
+%           'Project2MNI':  Project to MNI (for now)   
 %
 % EXAMPLE:
 %   Process one data set from FIF all the way to MNI-sources
@@ -37,13 +37,14 @@ function [PipeInfo, sFiles_4debug] = Run(PipeInfo,varargin)
 %     PipeInfo(cnt).inverse_method =      'wmne';
 %     PipeInfo(cnt).inverse_orientation = 'fixed';
 % 
-%     [PipeInfo, sFiles_4debug] = PipeInfo.Run('Import','PreSource','Source','PostSource');
+%     [PipeInfo, sFiles_4debug] = PipeInfo.Run('Import','PreSource','Source','Project2MNI');
 %
 %
 % 2014-02-14 Foldes
 % UPDATES:
 % 2014-02-17 Foldes: Split
 % 2014-02-18 Foldes: Modular, obj
+% 2014-03-25 Foldes: Small updates, removed if isempty (should be in Class def)
 
 
 % Gather all sFiles incase you want to debug
@@ -163,7 +164,7 @@ sFiles_4debug(end).sFiles = sFiles;
 LinkFile = load(fullfile(PipeInfo.protocol_data_path,sFiles.FileName));
 
 % list event names:
-labels_avalible = struct_field2cell(LinkFile.F.events,'label');
+labels_avalible = {LinkFile.F.events.label};% 2014-03-25
 
 % find if requested is a match
 event_match_idx = [];
@@ -284,9 +285,9 @@ sFiles = [];
 % Find file list of the data_*_trial#.mat format
 sFiles = Get_Trial_File_Names(PipeInfo);
 
-if isempty(PipeInfo.noisecov_time)
-    PipeInfo.noisecov_time = [-0.1, 0];
-end
+% if isempty(PipeInfo.noisecov_time)
+%     PipeInfo.noisecov_time = [-0.1, 0];
+% end
 
 % For debugging
 sFiles_4debug(end+1).process = 'Noise Cov';
@@ -325,9 +326,13 @@ switch lower(PipeInfo.inverse_method)
         method_num = 2;
 end
 
-if isempty(PipeInfo.inverse_orientation)
-    PipeInfo.inverse_orientation = 'fixed';
-end
+% if isempty(PipeInfo.inverse_orientation)
+%     PipeInfo.inverse_orientation = 'fixed';
+% end
+% 
+% if isempty(PipeInfo.sensortypes)
+%     PipeInfo.sensortypes = 'MEG, MEG MAG, MEG GRAD, EEG';
+% end
 
 % Process: Compute sources
 sFiles = bst_process(...
@@ -344,12 +349,12 @@ sFiles = bst_process(...
     'depth', 1, ...
     'weightexp', 0.5, ...
     'weightlimit', 10), ...
-    'sensortypes', 'MEG, MEG MAG, MEG GRAD, EEG', ...
+    'sensortypes', upper(PipeInfo.sensortypes), ...                 % <---------PROGRAMATIC  
     'output', 1);  % Kernel only: shared
 
 end % SOURCE
 
-function [PipeInfo, sFiles_4debug] = PostSource(PipeInfo)
+function [PipeInfo, sFiles_4debug] = Project2MNI(PipeInfo)
 % This will host all the post_source functions
 % Should one day be a flag system or a name of the funtion as a input
 %
@@ -375,7 +380,7 @@ sFiles = bst_process(...
     sFiles, [], ...
     'source_abs', 0);
 
-end % POSTSOURCE
+end % PROJECT2MNI
 
 
 

@@ -9,6 +9,9 @@ function c = struct_field2cell(S,field_name)
 % 2014-02-24 Foldes: Now uses eval so field_name can be sub-struct (i.e. include .)
 % 2014-03-05 Foldes: if input S is empty, returns []
 
+% warning('OBSOLETE 2014-03-25 USE: {} INSTEAD!')
+% SOME TIMES NEEDED
+
 c = [];
 for ientry = 1:length(S)
     if iscell(S)

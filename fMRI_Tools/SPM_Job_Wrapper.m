@@ -57,13 +57,12 @@ function MRI_Info = SPM_Job_Wrapper(MRI_Info)
 %
 % 2014-01-07 Foldes [Branched from fMRI_RunFunctionalAnalysis 2012-08-06 Foldes and Randazzo - via Betsy and Tim]
 % UPDATES:
-%
+% 2014-04-03 Foldes: Prep_Paths in obj
 
 %% Standard setup
 
 % Sets paths
-if ~exist('MRI_Info');MRI_Info = MRI_Info_Class;end
-MRI_Info=fMRI_Prep_Paths(MRI_Info); % should this go here?
+MRI_Info=MRI_Info.Prep_Paths;
 
 if isempty(MRI_Info.spm_job)
     [FileName,PathName] = uigetfile('*.m','Select SPM job file (SEE: MRI_Info.spm_job)');

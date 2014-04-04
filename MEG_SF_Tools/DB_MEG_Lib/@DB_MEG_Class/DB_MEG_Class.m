@@ -30,14 +30,14 @@ classdef DB_MEG_Class < DB_Class
         subject_type =  char([]); % AB
         gender =        char([]);
         handedness =    char([]);
-
+        
         % Run Info
         run_type =      char([]); % Open_Loop_MEG
         run_action =    char([]); % Grasp
         run_task_side = char([]); % Right
         run_intention = char([]); % Imitate
         run_info =      char([]); % subject_action_side_intention (see Metadata_Script_AutoFill)
-                
+        
         % Preprocessing Info and pointers
         Preproc = PreprocInfo_Class();
         
@@ -65,12 +65,12 @@ classdef DB_MEG_Class < DB_Class
         Extract=Prep_Extract(obj,Extract);
         % Head plots of bad channels
         bad_entry_list_out = Plot_BadChans(obj,varargin);
-
-%         % Download Data from server (unless it exists locally AND isn't fresh)
-%         Download_Data(obj,local_path,server_path,file_name_ending,force_transfer_flag)
-%         
-         obj = MEG_DataTypeCheck(obj);
-       
+        
+        %         % Download Data from server (unless it exists locally AND isn't fresh)
+        %         Download_Data(obj,local_path,server_path,file_name_ending,force_transfer_flag)
+        %
+        obj = MEG_DataTypeCheck(obj);
+        
         
         % CONSTRUCTOR
         %         function obj = Metadata(x)
@@ -78,7 +78,7 @@ classdef DB_MEG_Class < DB_Class
         %
         %         %% Populate Metadata with
         %         function obj = Metadata_Populate
-
+        
     end
     
     

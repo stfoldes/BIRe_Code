@@ -6,6 +6,7 @@
 % 2013-06-08 Foldes: Added sss_trans ModDepth
 % 2013-07-18 Foldes: Added Power_*
 % 2013-08-19 Foldes: clean
+% 2014-03-25 
 
 classdef ResultPointers_Class
     properties
@@ -17,11 +18,16 @@ classdef ResultPointers_Class
         %         SSP = char([]);
         %
         % Results Pointers
-        Power_sss_trans_Cue = char([]);
-        Power_tsss_trans_Cue = char([]);
-        Power_tsss_trans_Cue_o30 = char([]);
-        Power_tsss_trans_Cue_burg = char([]);
+        %         Power_sss_trans_Cue = char([]);
+        %         Power_tsss_trans_Cue = char([]);
+        %         Power_tsss_trans_Cue_o30 = char([]);
+        %         Power_tsss_trans_Cue_burg = char([]);
         
+        %         Power_tsss_Cue = char([]);
+        
+        SensorModDepth_tsss_Cue = char([]);
+        SourceModDepth_tsss_Cue = char([]);
+
         
         %         ModDepth_sss_EMG = char([]);
         %         ModDepth_sss_trans_EMG = char([]);

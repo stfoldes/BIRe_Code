@@ -1,11 +1,14 @@
 function hFig = BST_Set_Sources(hFig,SourceData)
 % Applies SourceData (nSources x 1) to an already open BST figure
 % hFig = view_surface(Inverse.SurfaceFile);
-% 
+%
 % 2014-01-31 Foldes
+% UPDATES
+% 2014-03-18 Foldes: Colormap updates
+% 2014-03-25 Foldes: Defaults to ABS-OFF coloring
 
 % check
-if ~strcmpi(get(gcf,'Tag'),'3DViz')
+if ~strcmpi(get(hFig,'Tag'),'3DViz')
     error('Figure is NOT BST surface figure @BST_Set_Sources')
     return
 end
@@ -15,11 +18,14 @@ end
 % Get data from figure
 TessInfo = getappdata(hFig,'Surface');
 
-% Overwrite figure data
-TessInfo.Data =              SourceData; 
+% FOR ME
+% bst_colormaps('CreatePermanentMenu',TessInfo.ColormapType)
 
-TessInfo.DataMinMax =        [min(TessInfo.Data) max(TessInfo.Data)]; 
-TessInfo.DataLimitValue =    [0 max(TessInfo.Data)]; % might be for color bar
+% Overwrite figure data
+TessInfo.Data =              SourceData;
+
+TessInfo.DataMinMax =        [min(TessInfo.Data) max(TessInfo.Data)];
+% TessInfo.DataLimitValue =    [-max(TessInfo.Data) max(TessInfo.Data)]; % might be for color bar
 
 % % Unknown parameters
 % TessInfo.DataSource.Type =   'Source';
@@ -50,14 +56,23 @@ figure_3d('UpdateSurfaceColor', hFig, 1); % line 1854
 panel_surface('UpdateSurfaceProperties'); % update the gui display
 
 
+% Remove ABS from coloring (that's your buisness)
+sColormap = bst_colormaps('GetColormap',TessInfo.ColormapType);
+sColormap.isAbsoluteValues = 0;
+bst_colormaps('SetColormap',TessInfo.ColormapType, sColormap);
+
+% Must reapply colormap options (e.g. limites have changes, must change color)
+bst_colormaps('FireColormapChanged',TessInfo.ColormapType);
+
+
 %%
 %     % Update surfaces
 %     panel_surface('UpdateSurfaceColormap', hFig);
 %                 % Update "Surfaces" panel
-%                 panel_surface('UpdateSurfaceProperties');       
-% 
+%                 panel_surface('UpdateSurfaceProperties');
+%
 % Surface.DataSource.Type = 'Source';
-% 
+%
 % panel_surface('AddSurface', hFig, SurfaceFile);
 
 
@@ -68,7 +83,7 @@ panel_surface('UpdateSurfaceProperties'); % update the gui display
 %                      iSurface: 1
 %                     StudyFile: []     <--- 'Subject01_copy/1/brainstormstudy.mat'
 %                   SubjectFile: 'Subject01_copy/brainstormsubject.mat'
-%                      DataFile: []     <--- 'Subject01_copy/1/data_1_average_140128_1525.mat'  
+%                      DataFile: []     <--- 'Subject01_copy/1/data_1_average_140128_1525.mat'
 %                   ResultsFile: []     <--- 'link|Subject01_copy/1/results_wMNE_MEG_GRAD_KERNEL_140124_1807.mat|Subject01_copy/1/data_1_average_140128_1525.mat'
 %       isSelectingCorticalSpot: 0
 %        isSelectingCoordinates: 0
@@ -90,7 +105,7 @@ panel_surface('UpdateSurfaceProperties'); % update the gui display
 %     uitools_FigureToolManager: [1x1 uitools.FigureToolManager]
 %
 %
-% Surface = 
+% Surface =
 %         SurfaceFile: 'Subject01_copy/tess_cortex_pial_low.mat'
 %                Name: 'Cortex'
 %          DataSource: [1x1 struct]
@@ -144,9 +159,9 @@ panel_surface('UpdateSurfaceProperties'); % update the gui display
 %   gui_enable(panelSurfacesCtrl.jPanelDataOptions, 1);
 %   jSliderDataThresh
 % (panelSurfacesCtrl.jPanelDataOptions); class thing
-% 
-% 
-% 
+%
+%
+%
 % I'm trying to figure out how to turn on the DataOptions Panel
 % Might have to be done when the figure is initially open
 % Might just load MNE figure and remove the .Data? Probably easier

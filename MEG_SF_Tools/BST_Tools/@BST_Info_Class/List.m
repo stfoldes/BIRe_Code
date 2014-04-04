@@ -40,7 +40,7 @@ switch lower(list_type)
         BST_Struct =    bst_memory('GetSurface', SurfaceFile);
         
         % which atlas is the user scouts? (this is easier than it looks)
-        user_scout_idx = find_lists_overlap_idx(struct_field2cell(BST_Struct.Atlas,'Name'),'User scouts');
-        list_out = struct_field2cell(BST_Struct.Atlas(user_scout_idx).Scouts,'Label');
+        user_scout_idx = find(strcmpi({BST_Struct.Atlas.Name},'User scouts'));% 2014-03-25
+        list_out = {BST_Struct.Atlas(user_scout_idx).Scouts.Label};
         
 end

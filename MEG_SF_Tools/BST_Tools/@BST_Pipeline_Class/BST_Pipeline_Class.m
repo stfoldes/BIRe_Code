@@ -2,7 +2,7 @@
 %
 % 2014-02-1 Foldes
 % UPDATES:
-% 
+% 2014-03-25 Foldes: small
 
 
 classdef BST_Pipeline_Class < BST_Info_Class
@@ -29,6 +29,8 @@ classdef BST_Pipeline_Class < BST_Info_Class
         % inverse_method =      char([]); % for inverse files only ('wMNE','dSPM')
         noisecov_time =         [-0.1, 0];
         inverse_orientation =   'fixed';
+        sensortypes =           'MEG, MEG MAG, MEG GRAD, EEG';
+          
         
     end % props
     
